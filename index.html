@@ -41,14 +41,27 @@ we adapted from exercises in phonology textbooks. </p>
 <a id="code" class="anchor" href="#code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code</h2>
 
 <h3>
-<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h3>
+<a id="prerequisites" class="anchor" href="#prerequisites" aria-hidden="true"><span class="octicon octicon-link"></span></a>Prerequisites</h3>
+
+<p>I've augmented the <a href="http://pyfst.github.io/api.html">pyfst</a> library by Victor Chahuneau with 
+some additional features. I added Cython headers to avoid going through Python, first
+order expectation semirings, signed log space, graph search for expected <em>n</em>-gram count extraction
+and a few other minor things. I plan to wrap the <a href="http://www.opengrm.org/">OpenGRM</a> library as well as the <a href="http://www.openfst.org/twiki/bin/view/FST/FstExtensions#FstPdts">push-down transducer</a> in the near future.</p>
 
 <ol>
-<li>Install <a href="http://www.openfst.org/twiki/bin/view/FST/FstDownload">OpenFST 1.4.1</a> 
+<li>install <a href="http://www.openfst.org/twiki/bin/view/FST/FstDownload">OpenFST 1.4.1</a> 
 2.<code>pip install cython</code>
 </li>
 <li>git checkout</li>
+<li>install <a href="http://mustache.github.io/">mustache</a>
+</li>
+<li>make</li>
 </ol>
+
+<h3>
+<a id="hpf" class="anchor" href="#hpf" aria-hidden="true"><span class="octicon octicon-link"></span></a>HPF</h3>
+
+<p>Coming Soon!</p>
 
 <h2>
 <a id="datasets" class="anchor" href="#datasets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Datasets</h2>

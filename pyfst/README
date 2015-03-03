@@ -1,0 +1,10 @@
+Extension to PyFST
+
+Ryan Cotterell (ryan.cotterell@gmail.com)
+
+INSTALLATION
+
+- install OpenFST 1.4.1
+- install cython (pip install cython)
+- install mustache (http://mustache.github.io/)
+- make

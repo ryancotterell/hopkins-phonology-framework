@@ -1369,6 +1369,13 @@ cdef class ExpectationVectorFst(_Fst):
             raise ValueError('transducer is not input deterministic')
         libfst.Minimize(self.fst)
 
+    def arc_sort_input(self):
+        """fst.arc_sort_input(): sort the input arcs of the transducer"""
+        cdef libfst.ILabelCompare[libfst.ExpectationArc] icomp
+        libfst.ArcSort(self.fst, icomp)
 
-
+    def arc_sort_output(self):
+        """fst.arc_sort_output(): sort the output arcs of the transducer"""
+        cdef libfst.OLabelCompare[libfst.ExpectationArc] ocomp
+        libfst.ArcSort(self.fst, ocomp)
 

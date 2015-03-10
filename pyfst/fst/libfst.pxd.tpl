@@ -252,3 +252,5 @@ cdef extern from "<fst/script/draw.h>" namespace "fst":
 
 
     cdef void ShortestDistance(Fst &fst, vector[ExpectationWeight]* distance, bint reverse)
+    cdef void ArcSort(MutableFst* fst, ILabelCompare[ExpectationArc]& compare)
+    cdef void ArcSort(MutableFst* fst, OLabelCompare[ExpectationArc]& compare)

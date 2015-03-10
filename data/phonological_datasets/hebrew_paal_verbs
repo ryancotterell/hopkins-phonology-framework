@@ -1,0 +1,130 @@
+katávti	ROOT=write,PATTERN=past,SUFFIX=1 singular
+katávta	ROOT=write,PATTERN=past,SUFFIX=2 masculine singular
+katávt	ROOT=write,PATTERN=past,SUFFIX=2 feminine singular
+katáv	ROOT=write,PATTERN=past,SUFFIX=3 masculine singular
+katvá	ROOT=write,PATTERN=past,SUFFIX=3 feminine singular
+katávnu	ROOT=write,PATTERN=past,SUFFIX=1 plural
+ktávtem	ROOT=write,PATTERN=past,SUFFIX=2 masculine plural
+ktávten	ROOT=write,PATTERN=past,SUFFIX=2 feminine plural
+katvú	ROOT=write,PATTERN=past,SUFFIX=3 plural
+kotév	ROOT=write,PATTERN=present participle,SUFFIX=masculine singular
+kotévet	ROOT=write,PATTERN=present participle,SUFFIX=feminine singular
+kotvím	ROOT=write,PATTERN=present participle,SUFFIX=masculine plural
+kotvót	ROOT=write,PATTERN=present participle,SUFFIX=feminine plural
+naváxti	ROOT=bark,PATTERN=past,SUFFIX=1 singular
+naváxta	ROOT=bark,PATTERN=past,SUFFIX=2 masculine singular
+naváxt	ROOT=bark,PATTERN=past,SUFFIX=2 feminine singular
+naváx	ROOT=bark,PATTERN=past,SUFFIX=3 masculine singular
+navxá	ROOT=bark,PATTERN=past,SUFFIX=3 feminine singular
+naváxnu	ROOT=bark,PATTERN=past,SUFFIX=1 plural
+nváxtem	ROOT=bark,PATTERN=past,SUFFIX=2 masculine plural
+nváxten	ROOT=bark,PATTERN=past,SUFFIX=2 feminine plural
+navxú	ROOT=bark,PATTERN=past,SUFFIX=3 plural
+novéx	ROOT=bark,PATTERN=present participle,SUFFIX=masculine singular
+novéxet	ROOT=bark,PATTERN=present participle,SUFFIX=feminine singular
+novxím	ROOT=bark,PATTERN=present participle,SUFFIX=masculine plural
+novxót	ROOT=bark,PATTERN=present participle,SUFFIX=feminine plural
+ʃamáʁti	ROOT=guard,PATTERN=past,SUFFIX=1 singular
+ʃamáʁta	ROOT=guard,PATTERN=past,SUFFIX=2 masculine singular
+ʃamáʁt	ROOT=guard,PATTERN=past,SUFFIX=2 feminine singular
+ʃamáʁ	ROOT=guard,PATTERN=past,SUFFIX=3 masculine singular
+ʃamʁá	ROOT=guard,PATTERN=past,SUFFIX=3 feminine singular
+ʃamáʁnu	ROOT=guard,PATTERN=past,SUFFIX=1 plural
+ʃmáʁtem	ROOT=guard,PATTERN=past,SUFFIX=2 masculine plural
+ʃmáʁten	ROOT=guard,PATTERN=past,SUFFIX=2 feminine plural
+ʃamʁú	ROOT=guard,PATTERN=past,SUFFIX=3 plural
+ʃoméʁ	ROOT=guard,PATTERN=present participle,SUFFIX=masculine singular
+ʃoméʁet	ROOT=guard,PATTERN=present participle,SUFFIX=feminine singular
+ʃomʁím	ROOT=guard,PATTERN=present participle,SUFFIX=masculine plural
+ʃomʁót	ROOT=guard,PATTERN=present participle,SUFFIX=feminine plural
+xaʁáʃti	ROOT=plough,PATTERN=past,SUFFIX=1 singular
+xaʁáʃta	ROOT=plough,PATTERN=past,SUFFIX=2 masculine singular
+xaʁáʃt	ROOT=plough,PATTERN=past,SUFFIX=2 feminine singular
+xaʁáʃ	ROOT=plough,PATTERN=past,SUFFIX=3 masculine singular
+xaʁʃá	ROOT=plough,PATTERN=past,SUFFIX=3 feminine singular
+xaʁáʃnu	ROOT=plough,PATTERN=past,SUFFIX=1 plural
+xʁáʃtem	ROOT=plough,PATTERN=past,SUFFIX=2 masculine plural
+xʁáʃten	ROOT=plough,PATTERN=past,SUFFIX=2 feminine plural
+xaʁʃú	ROOT=plough,PATTERN=past,SUFFIX=3 plural
+xoʁéʃ	ROOT=plough,PATTERN=present participle,SUFFIX=masculine singular
+xoʁéʃet	ROOT=plough,PATTERN=present participle,SUFFIX=feminine singular
+xoʁʃím	ROOT=plough,PATTERN=present participle,SUFFIX=masculine plural
+xoʁʃót	ROOT=plough,PATTERN=present participle,SUFFIX=feminine plural
+jaʃávti	ROOT=sit,PATTERN=past,SUFFIX=1 singular
+jaʃávta	ROOT=sit,PATTERN=past,SUFFIX=2 masculine singular
+jaʃávt	ROOT=sit,PATTERN=past,SUFFIX=2 feminine singular
+jaʃáv	ROOT=sit,PATTERN=past,SUFFIX=3 masculine singular
+jaʃvá	ROOT=sit,PATTERN=past,SUFFIX=3 feminine singular
+jaʃávnu	ROOT=sit,PATTERN=past,SUFFIX=1 plural
+jʃávtem	ROOT=sit,PATTERN=past,SUFFIX=2 masculine plural
+jʃávten	ROOT=sit,PATTERN=past,SUFFIX=2 feminine plural
+jaʃvú	ROOT=sit,PATTERN=past,SUFFIX=3 plural
+joʃév	ROOT=sit,PATTERN=present participle,SUFFIX=masculine singular
+joʃévet	ROOT=sit,PATTERN=present participle,SUFFIX=feminine singular
+joʃvím	ROOT=sit,PATTERN=present participle,SUFFIX=masculine plural
+joʃvót	ROOT=sit,PATTERN=present participle,SUFFIX=feminine plural
+dafákti	ROOT=knock,PATTERN=past,SUFFIX=1 singular
+dafákta	ROOT=knock,PATTERN=past,SUFFIX=2 masculine singular
+dafákt	ROOT=knock,PATTERN=past,SUFFIX=2 feminine singular
+dafák	ROOT=knock,PATTERN=past,SUFFIX=3 masculine singular
+dafká	ROOT=knock,PATTERN=past,SUFFIX=3 feminine singular
+dafáknu	ROOT=knock,PATTERN=past,SUFFIX=1 plural
+dfáktem	ROOT=knock,PATTERN=past,SUFFIX=2 masculine plural
+dfákten	ROOT=knock,PATTERN=past,SUFFIX=2 feminine plural
+dafkú	ROOT=knock,PATTERN=past,SUFFIX=3 plural
+dofék	ROOT=knock,PATTERN=present participle,SUFFIX=masculine singular
+doféket	ROOT=knock,PATTERN=present participle,SUFFIX=feminine singular
+dofkím	ROOT=knock,PATTERN=present participle,SUFFIX=masculine plural
+dofkót	ROOT=knock,PATTERN=present participle,SUFFIX=feminine plural
+laváʃti	ROOT=wear,PATTERN=past,SUFFIX=1 singular
+laváʃta	ROOT=wear,PATTERN=past,SUFFIX=2 masculine singular
+laváʃt	ROOT=wear,PATTERN=past,SUFFIX=2 feminine singular
+laváʃ	ROOT=wear,PATTERN=past,SUFFIX=3 masculine singular
+lavʃá	ROOT=wear,PATTERN=past,SUFFIX=3 feminine singular
+laváʃnu	ROOT=wear,PATTERN=past,SUFFIX=1 plural
+lváʃtem	ROOT=wear,PATTERN=past,SUFFIX=2 masculine plural
+lváʃten	ROOT=wear,PATTERN=past,SUFFIX=2 feminine plural
+lavʃú	ROOT=wear,PATTERN=past,SUFFIX=3 plural
+lovéʃ	ROOT=wear,PATTERN=present participle,SUFFIX=masculine singular
+lovéʃet	ROOT=wear,PATTERN=present participle,SUFFIX=feminine singular
+lovʃím	ROOT=wear,PATTERN=present participle,SUFFIX=masculine plural
+lovʃót	ROOT=wear,PATTERN=present participle,SUFFIX=feminine plural
+lagámti	ROOT=sip,PATTERN=past,SUFFIX=1 singular
+lagámta	ROOT=sip,PATTERN=past,SUFFIX=2 masculine singular
+lagámt	ROOT=sip,PATTERN=past,SUFFIX=2 feminine singular
+lagám	ROOT=sip,PATTERN=past,SUFFIX=3 masculine singular
+lagmá	ROOT=sip,PATTERN=past,SUFFIX=3 feminine singular
+lagámnu	ROOT=sip,PATTERN=past,SUFFIX=1 plural
+lgámtem	ROOT=sip,PATTERN=past,SUFFIX=2 masculine plural
+lgámten	ROOT=sip,PATTERN=past,SUFFIX=2 feminine plural
+lagmú	ROOT=sip,PATTERN=past,SUFFIX=3 plural
+logém	ROOT=sip,PATTERN=present participle,SUFFIX=masculine singular
+logémet	ROOT=sip,PATTERN=present participle,SUFFIX=feminine singular
+logmím	ROOT=sip,PATTERN=present participle,SUFFIX=masculine plural
+logmót	ROOT=sip,PATTERN=present participle,SUFFIX=feminine plural
+pagáʃti	ROOT=meet,PATTERN=past,SUFFIX=1 singular
+pagáʃta	ROOT=meet,PATTERN=past,SUFFIX=2 masculine singular
+pagáʃt	ROOT=meet,PATTERN=past,SUFFIX=2 feminine singular
+pagáʃ	ROOT=meet,PATTERN=past,SUFFIX=3 masculine singular
+pagʃá	ROOT=meet,PATTERN=past,SUFFIX=3 feminine singular
+pagáʃnu	ROOT=meet,PATTERN=past,SUFFIX=1 plural
+pgáʃtem	ROOT=meet,PATTERN=past,SUFFIX=2 masculine plural
+pgáʃten	ROOT=meet,PATTERN=past,SUFFIX=2 feminine plural
+pagʃú	ROOT=meet,PATTERN=past,SUFFIX=3 plural
+pogéʃ	ROOT=meet,PATTERN=present participle,SUFFIX=masculine singular
+pogéʃet	ROOT=meet,PATTERN=present participle,SUFFIX=feminine singular
+pogʃím	ROOT=meet,PATTERN=present participle,SUFFIX=masculine plural
+pogʃót	ROOT=meet,PATTERN=present participle,SUFFIX=feminine plural
+daʁáʃti	ROOT=study,PATTERN=past,SUFFIX=1 singular
+daʁáʃta	ROOT=study,PATTERN=past,SUFFIX=2 masculine singular
+daʁáʃt	ROOT=study,PATTERN=past,SUFFIX=2 feminine singular
+daʁáʃ	ROOT=study,PATTERN=past,SUFFIX=3 masculine singular
+daʁʃá	ROOT=study,PATTERN=past,SUFFIX=3 feminine singular
+daʁáʃnu	ROOT=study,PATTERN=past,SUFFIX=1 plural
+dʁáʃtem	ROOT=study,PATTERN=past,SUFFIX=2 masculine plural
+dʁáʃten	ROOT=study,PATTERN=past,SUFFIX=2 feminine plural
+daʁʃú	ROOT=study,PATTERN=past,SUFFIX=3 plural
+doʁéʃ	ROOT=study,PATTERN=present participle,SUFFIX=masculine singular
+doʁéʃet	ROOT=study,PATTERN=present participle,SUFFIX=feminine singular
+doʁʃím	ROOT=study,PATTERN=present participle,SUFFIX=masculine plural
+doʁʃót	ROOT=study,PATTERN=present participle,SUFFIX=feminine plural

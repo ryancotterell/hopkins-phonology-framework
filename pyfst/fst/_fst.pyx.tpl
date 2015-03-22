@@ -829,7 +829,7 @@ cdef class {{fst}}(_Fst):
 
 
 
-    def ngram_statistics(self, double tolerance):
+    def ngram_statistics(self, double tolerance, int n):
       
         cdef vector[libfst.{{weight}}] alphas
         cdef vector[libfst.{{weight}}] betas
@@ -869,10 +869,12 @@ cdef class {{fst}}(_Fst):
                 new_string = "$%"
                 results.append((new_string,new_prob))
 
-            else:
-                strings.push("")
+                cur_node.push(stateid)
+                probs.push(0.0)
+
+            strings.push("")
             cur_node.push(stateid)
-            probs.push(0.0)
+            probs.push(float(alphas[stateid].Value()))
 
         while not cur_node.empty():
             stateid = cur_node.front()
@@ -893,24 +895,26 @@ cdef class {{fst}}(_Fst):
                     
                 nextstate = arc.nextstate
                 new_prob = log_prob + float(arc.weight)
-                if new_prob < tolerance:
+                if (tolerance > 0.0 and new_prob < tolerance) or (n > 0 and len(cur_string) < n):
                 
                     cur_node.push(nextstate)
                     probs.push(new_prob)
                     
-                    #if arc.ilabel == 0:
-                    #    continue
-                    new_string = cur_string + self.isyms.find(arc.ilabel)
-                 
+                    if arc.ilabel > 0:
+                         new_string = cur_string + self.isyms.find(arc.ilabel)                 
+                    else:
+                         new_string = cur_string
+
+			 	      
                     #print new_string,new_prob,tolerance
-                    results.append((new_string,new_prob))
+                    results.append((new_string,new_prob + float(betas[nextstate].Value())))
                     strings.push(new_string)
 
                     state.stateid = nextstate
                     new_prob += float(state.final)
-                    if new_prob < tolerance:
-                        new_string = new_string + "%"
-                        results.append((new_string,new_prob))
+                    if (tolerance > 0.0 and new_prob < tolerance) or (n > 0 and len(new_string) < n):
+                        #print new_prob,float(state.final),new_string + "%"
+                        results.append((new_string + "%",new_prob))
 
                 it.Next()
         return results
@@ -978,6 +982,12 @@ cdef class ExpectationWeight:
         result.weight = new libfst.ExpectationWeight(libfst.Times(x.weight[0], y.weight[0]))
         
         return result
+
+    def __div__(ExpectationWeight x, ExpectationWeight y):
+        cdef ExpectationWeight result = ExpectationWeight.__new__(ExpectationWeight)
+        result.weight = new libfst.ExpectationWeight(libfst.Divide(x.weight[0], y.weight[0]))
+        return result
+
 
     def __repr__(self):
         w1v1 = repr(self.weight.Value1().Value1().Value())

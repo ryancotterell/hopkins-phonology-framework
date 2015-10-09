@@ -1,8 +1,11 @@
+from random import shuffle
 import numpy as np
 import fst
 from factors import ExponentialUnaryFactor
 from factors import PhonologyFactor
 from factors import TwoWayConcat
+from factors import ThreeWayConcat
+from factors import TwoWayTemplatic
 from variables import Variable
 from variables import Variable_EP
 from variables import Variable_Observed
@@ -173,7 +176,6 @@ class ConcatPhonologyModel:
 
             #print "DONE PASSING RIGHT"
             for f in self.level3_variables2:
-                print f
                 f.pass_message()
 
 
@@ -332,11 +334,10 @@ class TemplaticPhonologyModel:
             self.pattern_variables[self.pattern2id[k]] = Variable_EP(k, self.sigma, v)
             self.alignment_variables[self.pattern2id[k]] = Variable_EP(k, self.delta, v)
       
-        """
+
         # binyan factors
         for main, _id in self.main2id.items():
             self.binyan_factors[_id] = TwoWayTemplatic(self.class2, self.class1, self.sigma, self.delta)
-        """
 
         # initialize layers 1 and 2
         for sr, _id in self.sr_to_id.items():
@@ -368,37 +369,39 @@ class TemplaticPhonologyModel:
             self.unary_factors[_id].edges[0] = tmp_edge
             self.level3_variables[_id].edges[0] = tmp_edge
 
-            """
             if self.morpheme_id_to_type[_id] == 1: # is a stem?
                 # binyan
-                self.binyan_factors[self.morphemeid2mainid[_id]].edges[0] = Edge_V_to_F(self.level3_variables[_id],0)
+                tmp_edge = Edge(self.level3_variables[_id], self.binyan_factors[self.morphemeid2mainid[_id]], self.sigma)
+                self.binyan_factors[self.morphemeid2mainid[_id]].edges[0] = tmp_edge
+                self.level3_variables[_id].edges.append(tmp_edge)
         
+                
                 # pattern
                 if self.mainid2patternid[self.morphemeid2mainid[_id]] not in pattern_count:
                     pattern_count[self.mainid2patternid[self.morphemeid2mainid[_id]]] = 0
                                     
-                self.pattern_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]].edges[pattern_count[self.mainid2patternid[self.morphemeid2mainid[_id]]]] = Edge_F_to_V(self.binyan_factors[self.morphemeid2mainid[_id]],2)
 
-                self.binyan_factors[self.morphemeid2mainid[_id]].edges[3] = Edge_V_to_F(self.pattern_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]],0)
+                tmp_edge = Edge(self.pattern_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]], self.binyan_factors[self.morphemeid2mainid[_id]], self.sigma)
+                self.pattern_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]].edges[pattern_count[self.mainid2patternid[self.morphemeid2mainid[_id]]]] = tmp_edge
+                self.binyan_factors[self.morphemeid2mainid[_id]].edges[3] = tmp_edge
 
                 # alignment
-                self.alignment_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]].edges[pattern_count[self.mainid2patternid[self.morphemeid2mainid[_id]]]] = Edge_F_to_V(self.binyan_factors[self.morphemeid2mainid[_id]],3)
-
-                self.binyan_factors[self.morphemeid2mainid[_id]].edges[2] = Edge_V_to_F(self.alignment_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]],0)
+                tmp_edge = Edge(self.alignment_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]], self.alignment_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]], self.sigma)
+                self.alignment_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]].edges[pattern_count[self.mainid2patternid[self.morphemeid2mainid[_id]]]] = tmp_edge
+                self.binyan_factors[self.morphemeid2mainid[_id]].edges[2] = tmp_edge
+                
 
                 # root
                 if self.mainid2rootid[self.morphemeid2mainid[_id]] not in root_count:
                     root_count[self.mainid2rootid[self.morphemeid2mainid[_id]]] = 0
 
-                self.root_variables[self.mainid2rootid[self.morphemeid2mainid[_id]]].edges[root_count[self.mainid2rootid[self.morphemeid2mainid[_id]]]] = Edge_F_to_V(self.binyan_factors[self.morphemeid2mainid[_id]],1)
-
-                self.binyan_factors[self.morphemeid2mainid[_id]].edges[1] = Edge_V_to_F(self.root_variables[self.mainid2rootid[self.morphemeid2mainid[_id]]],0)
-
-
-
+                tmp_edge = Edge(self.root_variables[self.mainid2rootid[self.morphemeid2mainid[_id]]], self.binyan_factors[self.morphemeid2mainid[_id]].edges[1], self.sigma)
+                self.root_variables[self.mainid2rootid[self.morphemeid2mainid[_id]]].edges[root_count[self.mainid2rootid[self.morphemeid2mainid[_id]]]] = tmp_edge
+                self.binyan_factors[self.morphemeid2mainid[_id]].edges[1] = tmp_edge
+                
                 pattern_count[self.mainid2patternid[self.morphemeid2mainid[_id]]] += 1
                 root_count[self.mainid2rootid[self.morphemeid2mainid[_id]]] += 1
-            """
+
 
         # initialize 
         old = morphemes_count
@@ -453,31 +456,24 @@ class TemplaticPhonologyModel:
 	    
         for v in self.level2_variables:
             v.pass_message()
-        
+
+        for f in self.concat_factors:
+            f.pass_message()
 
         stuff = []
         for f in self.concat_factors:
             stuff.append(f)
+
         for v in self.level3_variables:
             stuff.append(v)
-        #stuff.reverse()
-        from random import shuffle
-        
+
         for iteration in xrange(iterations):
             shuffle(stuff)
             for thing in stuff:
                 thing.pass_message()
-            """
-            #print "ITERATION", iteration
-            #print "PASSING TO LEFT"
-            for f in self.concat_factors:
-                f.pass_to_left()
-            for f in self.concat_factors:
-                f.pass_to_right()
-            #for f in self.concat_factors:
-            #    f.pass_to_left()
-
-            #print "DONE PASSING LEFT"
-            for v in self.level3_variables:
-                v.pass_message()
-            """
+            
+            
+        for f in self.binyan_factors:
+            print f
+            f.pass_up_through()
+            

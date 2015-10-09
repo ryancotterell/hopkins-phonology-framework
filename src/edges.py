@@ -18,7 +18,7 @@ class Edge:
         self.m_v.start = self.m_v.add_state()
         self.m_v[0].final = fst.LogWeight.ONE
         for k, v in self.sigma.items():
-            self.m_v.add_arc(0, 0, v, v, 1.0)        
+            self.m_v.add_arc(0, 0, v, v, 3.0)        
 
         # factor message
         self.m_f = fst.LogVectorFst(self.sigma, self.sigma)
@@ -28,7 +28,7 @@ class Edge:
         self.m_f.start = self.m_f.add_state()
         self.m_f[0].final = fst.LogWeight.ONE
         for k, v in self.sigma.items():
-            self.m_f.add_arc(0, 0, v, v, 1.0)        
+            self.m_f.add_arc(0, 0, v, v, 3.0)        
 
         
         

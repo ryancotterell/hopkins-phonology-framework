@@ -3,7 +3,7 @@ from fst._fst import EPSILON, EPSILON_ID, SymbolTable,\
         LogWeight, LogArc, LogState, LogVectorFst,\
         TropicalWeight, StdArc, StdState, StdVectorFst, \
         ExpectationWeight,ExpectationArc,ExpectationState, \
-        ExpectationVectorFst,SignedLogWeight 
+        ExpectationVectorFst, SignedLogWeight
 
 
 def _make_transducer_class(clsname, parent):

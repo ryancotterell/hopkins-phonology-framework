@@ -894,8 +894,8 @@ cdef class {{fst}}(_Fst):
                 arc.arc = <libfst.{{arc}}*> &it.Value()
                     
                 nextstate = arc.nextstate
-                new_prob = log_prob + float(arc.weight)
-                if (tolerance > 0.0 and new_prob < tolerance) or (n > 0 and len(cur_string) < n):
+                new_prob = log_prob + float(arc.weight) 
+                if (tolerance > 0.0 and ( new_prob  < tolerance )) or (n > 0 and len(cur_string) < n):
                 
                     cur_node.push(nextstate)
                     probs.push(new_prob)
@@ -906,15 +906,15 @@ cdef class {{fst}}(_Fst):
                          new_string = cur_string
 
 			 	      
-                    #print new_string,new_prob,tolerance
+                    #print new_string,new_prob,new_prob - float(betas[0].Value()), tolerance,n,len(cur_string)
                     results.append((new_string,new_prob + float(betas[nextstate].Value())))
                     strings.push(new_string)
 
                     state.stateid = nextstate
                     new_prob += float(state.final)
-                    if (tolerance > 0.0 and new_prob < tolerance) or (n > 0 and len(new_string) < n):
+                    if (tolerance > 0.0 and ( new_prob  ) < tolerance) or (n > 0 and len(new_string) < n):
                         #print new_prob,float(state.final),new_string + "%"
-                        results.append((new_string + "%",new_prob))
+                        results.append((new_string + "%",new_prob ))
 
                 it.Next()
         return results

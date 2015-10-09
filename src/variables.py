@@ -78,7 +78,7 @@ class Variable_EP(Variable):
         belief.start = belief.add_state()
         belief[0].final = fst.LogWeight.ONE
         for k, v in self.sigma.items():
-            belief.add_arc(0, 0, v, v, 2.8)        
+            belief.add_arc(0, 0, v, v, 3.0)        
             
         # extract all 4-grams from top 5 strings
 
@@ -104,9 +104,10 @@ class Variable_EP(Variable):
         contexts = list(contexts)
 
         print "START EP", len(self.edges)
+        print "CONTEXTS", len(contexts)
         # update to hold one out like EP should
         
-        for i in xrange(1):
+        for i in xrange(2):
             for edge in self.edges[:]:
 
                 #if len(self.edges) == 3:
@@ -115,7 +116,10 @@ class Variable_EP(Variable):
                     #print "EDGE M_V", edge.f
                     #peek(edge.m_v, 10)
 
-                tmp = belief >> edge.m_v #fst.LogVectorFst(fst.StdVectorFst(edge.m_v).shortest_path(n=10))
+                tmp = edge.m_v >> belief  #fst.LogVectorFst(fst.StdVectorFst(edge.m_v).shortest_path(n=10))
+
+                #print "TMP"
+                #peek(tmp, 10)
                 approx = None
                 #if len(self.edges) > 3:
                 #    approx = va.bigram(tmp)
@@ -129,11 +133,41 @@ class Variable_EP(Variable):
                 approx.estimate()
                 belief = approx.q
 
-        for edge in self.edges[:]:
+                #print "B"
+                #peek(belief, 10)
+                #edge.m_f = belief
+
+        #belief = belief >> self.edges[0].m_v
+        for edge in self.edges[1:]:
             edge.m_f = belief
+        """
+        stuff = []
+        for edge in self.edges[1:]:
+            print "EDGE1"
+            peek(edge.m_v, 10)
+            approx = va.var(edge.m_v)
+            approx.create_machine(contexts)
+            approx.estimate()
+            print "EDGE 2"
+            peek(approx.q, 10)
+            stuff.append(approx.q)
+            edge.m_f = belief
+            #print "EDGE 3"
+            #peek(edge.m_f, 10)
             
-        print "BELIEF"
+        thing = None
+        for k, v in enumerate(stuff):
+            if k == 0:
+                thing = v
+            else:
+                thing = thing >> v
+
+        """
+        print "BELIEF 1"
         peek(belief, 10)
+        #print "BELIEF 2"
+        #peek(thing, 10)
+
 
     def __str__(self):
         return "VAR: " + self._id

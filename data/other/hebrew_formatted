@@ -1,0 +1,220 @@
+SamARti	ROOT=guard,PATTERN=past,SUFFIX=past 1 singular
+SamARta	ROOT=guard,PATTERN=past,SUFFIX=past 2 masculine singular
+SamARt	ROOT=guard,PATTERN=past,SUFFIX=past 2 feminine singular
+SamAR	ROOT=guard,PATTERN=past,SUFFIX=past 3 masculine singular
+SamRA	ROOT=guard,PATTERN=past,SUFFIX=past 3 feminine singular
+SamARnu	ROOT=guard,PATTERN=past,SUFFIX=past 1 plural
+SmARtem	ROOT=guard,PATTERN=past,SUFFIX=past 2 masculine plural
+SmARten	ROOT=guard,PATTERN=past,SUFFIX=past 2 feminine plural
+SamRU	ROOT=guard,PATTERN=past,SUFFIX=past 3 plural
+SomER	ROOT=guard,PATTERN=present participle,SUFFIX=present masculine singular
+SomERet	ROOT=guard,PATTERN=present participle,SUFFIX=present feminine singular
+SomRIm	ROOT=guard,PATTERN=present participle,SUFFIX=present masculine plural
+SomROt	ROOT=guard,PATTERN=present participle,SUFFIX=present feminine plural
+eSmOR	ROOT=guard,PATTERN=future,PREFIX=1 singular
+tiSmOR	ROOT=guard,PATTERN=future,PREFIX=2
+jiSmOR	ROOT=guard,PATTERN=future,PREFIX=3 masc
+tiSmOR	ROOT=guard,PATTERN=future,PREFIX=3 fem
+niSmOR	ROOT=guard,PATTERN=future,PREFIX=1 pl
+tiSmeRU	ROOT=guard,PATTERN=future,PREFIX=2,SUFFIX=pl
+tiSmORna	ROOT=guard,PATTERN=future,PREFIX=2,SUFFIX=feminine plural
+jiSmeRU	ROOT=guard,PATTERN=future,PREFIX=3 masc,SUFFIX=masculine plural
+tiSmORna	ROOT=guard,PATTERN=future,PREFIX=3 fem,SUFFIX=feminine plural
+navAxti	ROOT=bark,PATTERN=past,SUFFIX=past 1 singular
+navAxta	ROOT=bark,PATTERN=past,SUFFIX=past 2 masculine singular
+navAxt	ROOT=bark,PATTERN=past,SUFFIX=past 2 feminine singular
+navAx	ROOT=bark,PATTERN=past,SUFFIX=past 3 masculine singular
+navxA	ROOT=bark,PATTERN=past,SUFFIX=past 3 feminine singular
+navAxnu	ROOT=bark,PATTERN=past,SUFFIX=past 1 plural
+nvAxtem	ROOT=bark,PATTERN=past,SUFFIX=past 2 masculine plural
+nvAxten	ROOT=bark,PATTERN=past,SUFFIX=past 2 feminine plural
+navxU	ROOT=bark,PATTERN=past,SUFFIX=past 3 plural
+novEx	ROOT=bark,PATTERN=present participle,SUFFIX=present masculine singular
+novExet	ROOT=bark,PATTERN=present participle,SUFFIX=present feminine singular
+novxIm	ROOT=bark,PATTERN=present participle,SUFFIX=present masculine plural
+novxOt	ROOT=bark,PATTERN=present participle,SUFFIX=present feminine plural
+envOx	ROOT=bark,PATTERN=future,PREFIX=1 singular
+tinvOx	ROOT=bark,PATTERN=future,PREFIX=2
+jinvOx	ROOT=bark,PATTERN=future,PREFIX=3 masc
+tinvOx	ROOT=bark,PATTERN=future,PREFIX=3 fem
+ninvOx	ROOT=bark,PATTERN=future,PREFIX=1 pl
+tinvexU	ROOT=bark,PATTERN=future,PREFIX=2,SUFFIX=pl
+tinvOxna	ROOT=bark,PATTERN=future,PREFIX=2,SUFFIX=feminine plural
+jinvexU	ROOT=bark,PATTERN=future,PREFIX=3 masc,SUFFIX=masculine plural
+tinvOxna	ROOT=bark,PATTERN=future,PREFIX=3 fem,SUFFIX=feminine plural
+dafAkti	ROOT=knock,PATTERN=past,SUFFIX=past 1 singular
+dafAkta	ROOT=knock,PATTERN=past,SUFFIX=past 2 masculine singular
+dafAkt	ROOT=knock,PATTERN=past,SUFFIX=past 2 feminine singular
+dafAk	ROOT=knock,PATTERN=past,SUFFIX=past 3 masculine singular
+dafkA	ROOT=knock,PATTERN=past,SUFFIX=past 3 feminine singular
+dafAknu	ROOT=knock,PATTERN=past,SUFFIX=past 1 plural
+dfAktem	ROOT=knock,PATTERN=past,SUFFIX=past 2 masculine plural
+dfAkten	ROOT=knock,PATTERN=past,SUFFIX=past 2 feminine plural
+dafkU	ROOT=knock,PATTERN=past,SUFFIX=past 3 plural
+dofEk	ROOT=knock,PATTERN=present participle,SUFFIX=present masculine singular
+dofEket	ROOT=knock,PATTERN=present participle,SUFFIX=present feminine singular
+dofkIm	ROOT=knock,PATTERN=present participle,SUFFIX=present masculine plural
+dofkOt	ROOT=knock,PATTERN=present participle,SUFFIX=present feminine plural
+edfOk	ROOT=knock,PATTERN=future,PREFIX=1 singular
+tidfOk	ROOT=knock,PATTERN=future,PREFIX=2
+jidfOk	ROOT=knock,PATTERN=future,PREFIX=3 masc
+tidfOk	ROOT=knock,PATTERN=future,PREFIX=3 fem
+nidfOk	ROOT=knock,PATTERN=future,PREFIX=1 pl
+tidfekU	ROOT=knock,PATTERN=future,PREFIX=2,SUFFIX=pl
+tidfOkna	ROOT=knock,PATTERN=future,PREFIX=2,SUFFIX=feminine plural
+jidfekU	ROOT=knock,PATTERN=future,PREFIX=3 masc,SUFFIX=masculine plural
+tidfOkna	ROOT=knock,PATTERN=future,PREFIX=3 fem,SUFFIX=feminine plural
+kavArti	ROOT=bury,PATTERN=past,SUFFIX=past 1 singular
+kavArta	ROOT=bury,PATTERN=past,SUFFIX=past 2 masculine singular
+kavArt	ROOT=bury,PATTERN=past,SUFFIX=past 2 feminine singular
+kavAr	ROOT=bury,PATTERN=past,SUFFIX=past 3 masculine singular
+kavrA	ROOT=bury,PATTERN=past,SUFFIX=past 3 feminine singular
+kavArnu	ROOT=bury,PATTERN=past,SUFFIX=past 1 plural
+kvArtem	ROOT=bury,PATTERN=past,SUFFIX=past 2 masculine plural
+kvArten	ROOT=bury,PATTERN=past,SUFFIX=past 2 feminine plural
+kavrU	ROOT=bury,PATTERN=past,SUFFIX=past 3 plural
+kovEr	ROOT=bury,PATTERN=present participle,SUFFIX=present masculine singular
+kovEret	ROOT=bury,PATTERN=present participle,SUFFIX=present feminine singular
+kovrIm	ROOT=bury,PATTERN=present participle,SUFFIX=present masculine plural
+kovrOt	ROOT=bury,PATTERN=present participle,SUFFIX=present feminine plural
+ekvOr	ROOT=bury,PATTERN=future,PREFIX=1 singular
+tikvOr	ROOT=bury,PATTERN=future,PREFIX=2
+jikvOr	ROOT=bury,PATTERN=future,PREFIX=3 masc
+tikvOr	ROOT=bury,PATTERN=future,PREFIX=3 fem
+nikvOr	ROOT=bury,PATTERN=future,PREFIX=1 pl
+tikverU	ROOT=bury,PATTERN=future,PREFIX=2,SUFFIX=pl
+tikvOrna	ROOT=bury,PATTERN=future,PREFIX=2,SUFFIX=feminine plural
+jikverU	ROOT=bury,PATTERN=future,PREFIX=3 masc,SUFFIX=masculine plural
+tikvOrna	ROOT=bury,PATTERN=future,PREFIX=3 fem,SUFFIX=feminine plural
+katAvti	ROOT=write,PATTERN=past,SUFFIX=past 1 singular
+katAvta	ROOT=write,PATTERN=past,SUFFIX=past 2 masculine singular
+katAvt	ROOT=write,PATTERN=past,SUFFIX=past 2 feminine singular
+katAv	ROOT=write,PATTERN=past,SUFFIX=past 3 masculine singular
+katvA	ROOT=write,PATTERN=past,SUFFIX=past 3 feminine singular
+katAvnu	ROOT=write,PATTERN=past,SUFFIX=past 1 plural
+ktAvtem	ROOT=write,PATTERN=past,SUFFIX=past 2 masculine plural
+ktAvten	ROOT=write,PATTERN=past,SUFFIX=past 2 feminine plural
+katvU	ROOT=write,PATTERN=past,SUFFIX=past 3 plural
+kotEv	ROOT=write,PATTERN=present participle,SUFFIX=present masculine singular
+kotEvet	ROOT=write,PATTERN=present participle,SUFFIX=present feminine singular
+kotvIm	ROOT=write,PATTERN=present participle,SUFFIX=present masculine plural
+kotvOt	ROOT=write,PATTERN=present participle,SUFFIX=present feminine plural
+ektOv	ROOT=write,PATTERN=future,PREFIX=1 singular
+tiktOv	ROOT=write,PATTERN=future,PREFIX=2
+jiktOv	ROOT=write,PATTERN=future,PREFIX=3 masc
+tiktOv	ROOT=write,PATTERN=future,PREFIX=3 fem
+niktOv	ROOT=write,PATTERN=future,PREFIX=1 pl
+tiktevU	ROOT=write,PATTERN=future,PREFIX=2,SUFFIX=pl
+tiktOvna	ROOT=write,PATTERN=future,PREFIX=2,SUFFIX=feminine plural
+jiktevU	ROOT=write,PATTERN=future,PREFIX=3 masc,SUFFIX=masculine plural
+tiktOvna	ROOT=write,PATTERN=future,PREFIX=3 fem,SUFFIX=feminine plural
+kafAlti	ROOT=double,PATTERN=past,SUFFIX=past 1 singular
+kafAlta	ROOT=double,PATTERN=past,SUFFIX=past 2 masculine singular
+kafAlt	ROOT=double,PATTERN=past,SUFFIX=past 2 feminine singular
+kafAl	ROOT=double,PATTERN=past,SUFFIX=past 3 masculine singular
+kaflA	ROOT=double,PATTERN=past,SUFFIX=past 3 feminine singular
+kafAlnu	ROOT=double,PATTERN=past,SUFFIX=past 1 plural
+kfAltem	ROOT=double,PATTERN=past,SUFFIX=past 2 masculine plural
+kfAlten	ROOT=double,PATTERN=past,SUFFIX=past 2 feminine plural
+kaflU	ROOT=double,PATTERN=past,SUFFIX=past 3 plural
+kofEl	ROOT=double,PATTERN=present participle,SUFFIX=present masculine singular
+kofElet	ROOT=double,PATTERN=present participle,SUFFIX=present feminine singular
+koflIm	ROOT=double,PATTERN=present participle,SUFFIX=present masculine plural
+koflOt	ROOT=double,PATTERN=present participle,SUFFIX=present feminine plural
+ekfOl	ROOT=double,PATTERN=future,PREFIX=1 singular
+tikfOl	ROOT=double,PATTERN=future,PREFIX=2
+jikfOl	ROOT=double,PATTERN=future,PREFIX=3 masc
+tikfOl	ROOT=double,PATTERN=future,PREFIX=3 fem
+nikfOl	ROOT=double,PATTERN=future,PREFIX=1 pl
+tikfelU	ROOT=double,PATTERN=future,PREFIX=2,SUFFIX=pl
+tikfOlna	ROOT=double,PATTERN=future,PREFIX=2,SUFFIX=feminine plural
+jikfelU	ROOT=double,PATTERN=future,PREFIX=3 masc,SUFFIX=masculine plural
+tikfOlna	ROOT=double,PATTERN=future,PREFIX=3 fem,SUFFIX=feminine plural
+lavASti	ROOT=wear,PATTERN=past,SUFFIX=past 1 singular
+lavASta	ROOT=wear,PATTERN=past,SUFFIX=past 2 masculine singular
+lavASt	ROOT=wear,PATTERN=past,SUFFIX=past 2 feminine singular
+lavAS	ROOT=wear,PATTERN=past,SUFFIX=past 3 masculine singular
+lavSA	ROOT=wear,PATTERN=past,SUFFIX=past 3 feminine singular
+lavASnu	ROOT=wear,PATTERN=past,SUFFIX=past 1 plural
+lvAStem	ROOT=wear,PATTERN=past,SUFFIX=past 2 masculine plural
+lvASten	ROOT=wear,PATTERN=past,SUFFIX=past 2 feminine plural
+lavSU	ROOT=wear,PATTERN=past,SUFFIX=past 3 plural
+lovES	ROOT=wear,PATTERN=present participle,SUFFIX=present masculine singular
+lovESet	ROOT=wear,PATTERN=present participle,SUFFIX=present feminine singular
+lovSIm	ROOT=wear,PATTERN=present participle,SUFFIX=present masculine plural
+lovSOt	ROOT=wear,PATTERN=present participle,SUFFIX=present feminine plural
+elvOS	ROOT=wear,PATTERN=future,PREFIX=1 singular
+tilvOS	ROOT=wear,PATTERN=future,PREFIX=2
+jilvOS	ROOT=wear,PATTERN=future,PREFIX=3 masc
+tilvOS	ROOT=wear,PATTERN=future,PREFIX=3 fem
+nilvOS	ROOT=wear,PATTERN=future,PREFIX=1 pl
+tilveSU	ROOT=wear,PATTERN=future,PREFIX=2,SUFFIX=pl
+tilvOSna	ROOT=wear,PATTERN=future,PREFIX=2,SUFFIX=feminine plural
+jilveSU	ROOT=wear,PATTERN=future,PREFIX=3 masc,SUFFIX=masculine plural
+tilvOSna	ROOT=wear,PATTERN=future,PREFIX=3 fem,SUFFIX=feminine plural
+lagAmti	ROOT=sip,PATTERN=past,SUFFIX=past 1 singular
+lagAmta	ROOT=sip,PATTERN=past,SUFFIX=past 2 masculine singular
+lagAmt	ROOT=sip,PATTERN=past,SUFFIX=past 2 feminine singular
+lagAm	ROOT=sip,PATTERN=past,SUFFIX=past 3 masculine singular
+lagmA	ROOT=sip,PATTERN=past,SUFFIX=past 3 feminine singular
+lagAmnu	ROOT=sip,PATTERN=past,SUFFIX=past 1 plural
+lgAmtem	ROOT=sip,PATTERN=past,SUFFIX=past 2 masculine plural
+lgAmten	ROOT=sip,PATTERN=past,SUFFIX=past 2 feminine plural
+lagmU	ROOT=sip,PATTERN=past,SUFFIX=past 3 plural
+logEm	ROOT=sip,PATTERN=present participle,SUFFIX=present masculine singular
+logEmet	ROOT=sip,PATTERN=present participle,SUFFIX=present feminine singular
+logmIm	ROOT=sip,PATTERN=present participle,SUFFIX=present masculine plural
+logmOt	ROOT=sip,PATTERN=present participle,SUFFIX=present feminine plural
+elgOm	ROOT=sip,PATTERN=future,PREFIX=1 singular
+tilgOm	ROOT=sip,PATTERN=future,PREFIX=2
+jilgOm	ROOT=sip,PATTERN=future,PREFIX=3 masc
+tilgOm	ROOT=sip,PATTERN=future,PREFIX=3 fem
+nilgOm	ROOT=sip,PATTERN=future,PREFIX=1 pl
+tilgemU	ROOT=sip,PATTERN=future,PREFIX=2,SUFFIX=pl
+tilgOmna	ROOT=sip,PATTERN=future,PREFIX=2,SUFFIX=feminine plural
+jilgemU	ROOT=sip,PATTERN=future,PREFIX=3 masc,SUFFIX=masculine plural
+tilgOmna	ROOT=sip,PATTERN=future,PREFIX=3 fem,SUFFIX=feminine plural
+pagASti	ROOT=meet,PATTERN=past,SUFFIX=past 1 singular
+pagASta	ROOT=meet,PATTERN=past,SUFFIX=past 2 masculine singular
+pagASt	ROOT=meet,PATTERN=past,SUFFIX=past 2 feminine singular
+pagAS	ROOT=meet,PATTERN=past,SUFFIX=past 3 masculine singular
+pagSA	ROOT=meet,PATTERN=past,SUFFIX=past 3 feminine singular
+pagASnu	ROOT=meet,PATTERN=past,SUFFIX=past 1 plural
+pgAStem	ROOT=meet,PATTERN=past,SUFFIX=past 2 masculine plural
+pgASten	ROOT=meet,PATTERN=past,SUFFIX=past 2 feminine plural
+pagSU	ROOT=meet,PATTERN=past,SUFFIX=past 3 plural
+pogES	ROOT=meet,PATTERN=present participle,SUFFIX=present masculine singular
+pogESet	ROOT=meet,PATTERN=present participle,SUFFIX=present feminine singular
+pogSIm	ROOT=meet,PATTERN=present participle,SUFFIX=present masculine plural
+pogSOt	ROOT=meet,PATTERN=present participle,SUFFIX=present feminine plural
+epgOS	ROOT=meet,PATTERN=future,PREFIX=1 singular
+tipgOS	ROOT=meet,PATTERN=future,PREFIX=2
+jipgOS	ROOT=meet,PATTERN=future,PREFIX=3 masc
+tipgOS	ROOT=meet,PATTERN=future,PREFIX=3 fem
+nipgOS	ROOT=meet,PATTERN=future,PREFIX=1 pl
+tipgeSU	ROOT=meet,PATTERN=future,PREFIX=2,SUFFIX=pl
+tipgOSna	ROOT=meet,PATTERN=future,PREFIX=2,SUFFIX=feminine plural
+jipgeSU	ROOT=meet,PATTERN=future,PREFIX=3 masc,SUFFIX=masculine plural
+tipgOSna	ROOT=meet,PATTERN=future,PREFIX=3 fem,SUFFIX=feminine plural
+daRASti	ROOT=study,PATTERN=past,SUFFIX=past 1 singular
+daRASta	ROOT=study,PATTERN=past,SUFFIX=past 2 masculine singular
+daRASt	ROOT=study,PATTERN=past,SUFFIX=past 2 feminine singular
+daRAS	ROOT=study,PATTERN=past,SUFFIX=past 3 masculine singular
+daRSA	ROOT=study,PATTERN=past,SUFFIX=past 3 feminine singular
+daRASnu	ROOT=study,PATTERN=past,SUFFIX=past 1 plural
+dRAStem	ROOT=study,PATTERN=past,SUFFIX=past 2 masculine plural
+dRASten	ROOT=study,PATTERN=past,SUFFIX=past 2 feminine plural
+daRSU	ROOT=study,PATTERN=past,SUFFIX=past 3 plural
+doRES	ROOT=study,PATTERN=present participle,SUFFIX=present masculine singular
+doRESet	ROOT=study,PATTERN=present participle,SUFFIX=present feminine singular
+doRSIm	ROOT=study,PATTERN=present participle,SUFFIX=present masculine plural
+doRSOt	ROOT=study,PATTERN=present participle,SUFFIX=present feminine plural
+edROS	ROOT=study,PATTERN=future,PREFIX=1 singular
+tidROS	ROOT=study,PATTERN=future,PREFIX=2
+jidROS	ROOT=study,PATTERN=future,PREFIX=3 masc
+tidROS	ROOT=study,PATTERN=future,PREFIX=3 fem
+nidROS	ROOT=study,PATTERN=future,PREFIX=1 pl
+tidReSU	ROOT=study,PATTERN=future,PREFIX=2,SUFFIX=pl
+tidROSna	ROOT=study,PATTERN=future,PREFIX=2,SUFFIX=feminine plural
+jidReSU	ROOT=study,PATTERN=future,PREFIX=3 masc,SUFFIX=masculine plural
+tidROSna	ROOT=study,PATTERN=future,PREFIX=3 fem,SUFFIX=feminine plural

@@ -32,8 +32,6 @@ def read(file_in):
                     prefixes.append(v)
                 elif a == "SUFFIX":
                     suffixes.append(v)
-            
-
 
             if "past 1 singular" in suffixes or \
                "past 2 masculine singular" in suffixes or \
@@ -57,7 +55,7 @@ for word in words:
     print word.sr
 
 model = TemplaticPhonologyModel(words)
-model.inference(5)
+model.inference(10)
 
 #cProfile.runctx("model.inference(2)", globals(), locals(), "Profile.prof")
 #s = pstats.Stats("Profile.prof")

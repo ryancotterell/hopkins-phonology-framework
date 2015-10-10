@@ -174,7 +174,7 @@ class TwoWayConcat(Factor):
 
         self.edges[0].m_v = self.variables[0]
         self.edges[2].m_v = self.variables[2]
-
+        
 
     def pass_to_left(self):
         """
@@ -199,7 +199,8 @@ class TwoWayConcat(Factor):
 
         self.edges[0].m_v = self.variables[0]
         self.edges[1].m_v = self.variables[1]
-                
+
+
     def pass_message(self):
         """
         pass all the message (left and right)
@@ -426,7 +427,6 @@ class TwoWayTemplatic(Factor):
         class1 : the first class of letters
         class2 : the second class of letters
         """
-
         self.sigma = sigma
         self.delta = delta
         
@@ -508,69 +508,65 @@ class TwoWayTemplatic(Factor):
         """
         pass the message up
         """
-        for edge_i, edge in enumerate(self.edges):          
-            if edge_i == 0:          
-                # extract class 1
-                self.up_message_class1 = (edge.m_f  >> self.extract_class1)
-                self.up_message_class1.project_output()
-                #self.up_message_class1.remove_epsilon()
-                #self.up_message_class1 = self.up_message_class1.determinize()
-                #self.up_message_class1.minimize()
-          
-                # extract class 2
-                self.up_message_class2 = (edge.m_f  >> self.extract_class2)
-                self.up_message_class2.project_output()
-                #self.up_message_class2.remove_epsilon()
-                #self.up_message_class2 = self.up_message_class2.determinize()
-                #self.up_message_class2.minimize()
+        # UP PASS
+        # extract class 1
+        self.up_message_class1 = (self.edges[0].m_f  >> self.extract_class1)
+        self.up_message_class1.project_output()
+        self.up_message_class1.arc_sort_output()
 
-                # extract alignment
-                self.up_message_alignment = (edge.m_f  >> self.extract_alignment)
-                self.up_message_alignment.project_output()
-                #self.up_message_alignment.remove_epsilon()
-                #self.up_message_alignment = self.up_message_alignment.determinize()
-                #self.up_message_alignment.minimize()
-            
-            else:
-                # extract class 1
-                self.up_message_class1.arc_sort_output()
-                self.up_message_class1 = self.up_message_class1 >> (edge.m_f  >> self.extract_class1)
-                self.up_message_class1.project_output()
-                #self.up_message_class1.remove_epsilon()
-                #self.up_message_class1 = self.up_message_class1.determinize()
-                #self.up_message_class1.minimize()
-             
-                # extract class 2
-                self.up_message_class2.arc_sort_output()
-                self.up_message_class2 = self.up_message_class2 >> (edge.m_f  >> self.extract_class2)
-                self.up_message_class2.project_output()
-                #self.up_message_class2.remove_epsilon()
-                #self.up_message_class2 = self.up_message_class2.determinize()
-                #self.up_message_class2.minimize()
+        # extract class 2
+        self.up_message_class2 = (self.edges[0].m_f  >> self.extract_class2)
+        self.up_message_class2.project_output()
+        self.up_message_class2.arc_sort_output()
 
-                # extract alignment
-                self.up_message_alignment.arc_sort_output()
-                tmp = (edge.m_f  >> self.extract_alignment)
-                tmp.project_output()
-                self.up_message_alignment = self.up_message_alignment >> tmp
-                self.up_message_alignment.project_output()
-                #self.up_message_alignment.remove_epsilon()
-                #self.up_message_alignment = self.up_message_alignment.determinize()
-                #self.up_message_alignment.minimize()
+        # extract alignment
+        self.up_message_alignment = (self.edges[0].m_f  >> self.extract_alignment)
+        self.up_message_alignment.project_output()
+        self.up_message_alignment.arc_sort_output()
+        
+        # pass to class 2
+        class2_message = self.edges[1].m_f >> self.replacer_class1 \
+              >> self.interdigitator1 >> self.edges[2].m_f \
+              >> self.interdigitator2 >> self.replacer_class2
+        class2_message.project_output()
+        class2_message = class2_message >> self.up_message_class2
+        
+        # pass to class 1
+        class1_message = self.replacer_class1 >> self.interdigitator1 >> self.edges[2].m_f \
+                         >> self.interdigitator2 >> self.replacer_class2 >> self.edges[3].m_f
+        
+        class1_message.project_input()
+        class1_message = self.up_message_class1 >> class1_message
 
+        # pass to alignment
+        alignment_message_part1 = self.edges[1].m_f >> self.replacer_class1 >> self.interdigitator1
+        alignment_message_part2 = self.interdigitator2 >> self.replacer_class2 >> self.edges[3].m_f
+        alignment_message_part1.project_output()
+        alignment_message_part2.project_input()
+        alignment_message = self.up_message_alignment >> alignment_message_part1 >> alignment_message_part2
+
+        # add to messages
+        self.edges[1].m_v = class1_message
+        self.edges[2].m_v = alignment_message
+        self.edges[3].m_v = class2_message
+
+        """
         print "CLASS 1"
-        peek(self.up_message_class1, 10)
-
+        peek(class1_message, 10)
         print "CLASS 2"
-        peek(self.up_message_class2, 10)
+        peek(class2_message, 10)
+        print "ALIGNMENT"
+        peek(alignment_message, 10)
+        raw_input()
+        """
 
     def pass_down_through(self):
         """
-        Pass the message down
+        pass the message down
         """
-        tmp = self.class1_edge.message >> self.replacer_class1 \
-              >> self.interdigitator1 >> self.alignment_edge.message \
-              >> self.interdigitator2 >> self.replacer_class2 >> self.class2_edge.message
+        tmp = self.edges[1].m_f >> self.replacer_class1 \
+              >> self.interdigitator1 >> self.edges[2].m_f \
+              >> self.interdigitator2 >> self.replacer_class2 >> self.edges[3].m_f
         
         for state in tmp:
             for arc in state:
@@ -578,8 +574,6 @@ class TwoWayTemplatic(Factor):
                     arc.olabel = arc.ilabel
                 elif arc.olabel > 0 and arc.ilabel == 0:
                     arc.ilabel = arc.olabel
-        tmp.project_        
-        self.ur_message_down = tmp
-
-
-
+        tmp.project_output()
+        self.edges[0].m_v = tmp
+      

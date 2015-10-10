@@ -42,6 +42,57 @@ class Variable_Observed(Variable):
     def __repr__(self):
         return str(self)
 
+class Variable_Pruned(Variable):
+    """
+    Simple K-best pruning for a variable's belief
+    computation. Useful for machines
+    that we know in advance will be small, e.g., 
+    the alignment variables. This is faster 
+    when applicable. 
+    """
+    def __init__(self, _id, sigma, num_edges, k=100):
+        self._id = _id
+        self.sigma = sigma
+        self.edges = [None] * num_edges
+        self.k = k
+
+    def pass_message(self):
+        """
+        Passes the message along
+        """
+        print "DONE"
+        incoming = []
+        for edge in self.edges:
+            if edge == None:
+                continue
+            incoming.append(edge.m_v)
+            
+        belief = incoming[0]
+        for m in incoming[1:]:
+            belief = fst.LogVectorFst(fst.StdVectorFst(belief).shortest_path(n=self.k))
+            belief = belief >> m
+            #belief = belief.determinize()
+            #belief.minimize()
+
+        belief = fst.LogVectorFst(fst.StdVectorFst(belief).shortest_path(n=self.k))
+        belief = belief.determinize()
+        belief.minimize()
+        print "BELIEF"
+        peek(belief, 10)
+    
+        # faster to just pass the belief
+        for edge in self.edges:
+            if edge == None:
+                continue
+            edge.m_f = belief
+
+    def __str__(self):
+        return "VAR: " + self._id
+        
+    def __repr__(self):
+        return str(self)
+
+
 
 class Variable_EP(Variable):
     """
@@ -83,8 +134,9 @@ class Variable_EP(Variable):
         # extract all 4-grams from top 5 strings
 
         contexts = set([])
-
         for edge in self.edges:
+            if edge == None:
+                continue
             for path in fst.StdVectorFst(edge.m_v).shortest_path(n=1).paths():
                 string = ""
                 for arc in path:
@@ -100,7 +152,7 @@ class Variable_EP(Variable):
                     # trigrams
                     for (c1, c2), c3 in zip(zip(list("^" + string), list(string)), list(string)):
                         contexts.add(c1+c2+c3)
-
+                        
         contexts = list(contexts)
 
         print "START EP", len(self.edges)
@@ -109,17 +161,15 @@ class Variable_EP(Variable):
         
         for i in xrange(2):
             for edge in self.edges[:]:
-
+                if edge == None:
+                    continue
                 #if len(self.edges) == 3:
                     
                     #print contexts
-                    #print "EDGE M_V", edge.f
-                    #peek(edge.m_v, 10)
+                print str(i) + "\tEDGE M_V", edge.v
+                peek(edge.m_v, 10)
 
                 tmp = edge.m_v >> belief  #fst.LogVectorFst(fst.StdVectorFst(edge.m_v).shortest_path(n=10))
-
-                #print "TMP"
-                #peek(tmp, 10)
                 approx = None
                 #if len(self.edges) > 3:
                 #    approx = va.bigram(tmp)
@@ -132,41 +182,29 @@ class Variable_EP(Variable):
                 
                 approx.estimate()
                 belief = approx.q
-
+                print "APPROX"
+                try:
+                    peek(approx.q, 10)
+                except:
+                    for state in belief:
+                        print state, state.final
+                        for arc in state:
+                            print arc
+                    import sys; sys.exit(0)
                 #print "B"
                 #peek(belief, 10)
                 #edge.m_f = belief
 
         #belief = belief >> self.edges[0].m_v
-        for edge in self.edges[1:]:
-            edge.m_f = belief
-        """
-        stuff = []
-        for edge in self.edges[1:]:
-            print "EDGE1"
-            peek(edge.m_v, 10)
-            approx = va.var(edge.m_v)
-            approx.create_machine(contexts)
-            approx.estimate()
-            print "EDGE 2"
-            peek(approx.q, 10)
-            stuff.append(approx.q)
-            edge.m_f = belief
-            #print "EDGE 3"
-            #peek(edge.m_f, 10)
-            
-        thing = None
-        for k, v in enumerate(stuff):
-            if k == 0:
-                thing = v
-            else:
-                thing = thing >> v
 
-        """
+        print belief
         print "BELIEF 1"
         peek(belief, 10)
-        #print "BELIEF 2"
-        #peek(thing, 10)
+
+        for edge in self.edges[:]:
+            if edge == None:
+                continue
+            edge.m_f = belief
 
 
     def __str__(self):

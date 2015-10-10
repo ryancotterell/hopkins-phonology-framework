@@ -9,11 +9,14 @@ from factors import TwoWayTemplatic
 from variables import Variable
 from variables import Variable_EP
 from variables import Variable_Observed
+from variables import Variable_Pruned
 from edges import Edge
 
 #from exceptions import IllegalMorphemeNumber
 import utils
 from utils import peek
+
+# seed random number generator
 
 class ConcatPhonologyModel:
     """
@@ -264,7 +267,6 @@ class TemplaticPhonologyModel:
                 root_count[word.root_id] = 0
             root_count[word.root_id] += 1
 
-
             for prefix_id in word.prefix_ids:
                 if prefix_id not in self.morphemes_to_id:
                     self.morphemes_to_id[prefix_id] = len(self.morphemes_to_id)
@@ -329,12 +331,11 @@ class TemplaticPhonologyModel:
        
         # initialize the root and pattern variables
         for k, v in root_count.items():
-            self.root_variables[self.root2id[k]] = Variable_EP(k, self.sigma, v)
+            self.root_variables[self.root2id[k]] = Variable_EP("Root " + k, self.sigma, v)
         for k, v in pattern_count.items():
-            self.pattern_variables[self.pattern2id[k]] = Variable_EP(k, self.sigma, v)
-            self.alignment_variables[self.pattern2id[k]] = Variable_EP(k, self.delta, v)
+            self.pattern_variables[self.pattern2id[k]] = Variable_EP("Pattern " + k, self.sigma, v)
+            self.alignment_variables[self.pattern2id[k]] = Variable_Pruned("Alignment " + k, self.delta, v)
       
-
         # binyan factors
         for main, _id in self.main2id.items():
             self.binyan_factors[_id] = TwoWayTemplatic(self.class2, self.class1, self.sigma, self.delta)
@@ -345,7 +346,7 @@ class TemplaticPhonologyModel:
 
             self.level1_variables[_id] = Variable_Observed(sr, self.sigma, self.surface_forms[_id])
         
-            self.phono_factors[_id] = PhonologyFactor(self.sigma, utils.phonology_edit(self.sigma, .9))
+            self.phono_factors[_id] = PhonologyFactor(self.sigma, utils.phonology_edit(self.sigma, .999))
             # add edge between observed node and phonology
             
             self.phono_factors[_id].edges[0] = Edge(self.level1_variables[_id], self.phono_factors[_id], self.sigma)
@@ -374,23 +375,20 @@ class TemplaticPhonologyModel:
                 tmp_edge = Edge(self.level3_variables[_id], self.binyan_factors[self.morphemeid2mainid[_id]], self.sigma)
                 self.binyan_factors[self.morphemeid2mainid[_id]].edges[0] = tmp_edge
                 self.level3_variables[_id].edges.append(tmp_edge)
-        
-                
+                        
                 # pattern
                 if self.mainid2patternid[self.morphemeid2mainid[_id]] not in pattern_count:
                     pattern_count[self.mainid2patternid[self.morphemeid2mainid[_id]]] = 0
                                     
-
                 tmp_edge = Edge(self.pattern_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]], self.binyan_factors[self.morphemeid2mainid[_id]], self.sigma)
                 self.pattern_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]].edges[pattern_count[self.mainid2patternid[self.morphemeid2mainid[_id]]]] = tmp_edge
                 self.binyan_factors[self.morphemeid2mainid[_id]].edges[3] = tmp_edge
 
                 # alignment
-                tmp_edge = Edge(self.alignment_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]], self.alignment_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]], self.sigma)
+                tmp_edge = Edge(self.alignment_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]], self.binyan_factors[self.morphemeid2mainid[_id]], self.delta)
                 self.alignment_variables[self.mainid2patternid[self.morphemeid2mainid[_id]]].edges[pattern_count[self.mainid2patternid[self.morphemeid2mainid[_id]]]] = tmp_edge
                 self.binyan_factors[self.morphemeid2mainid[_id]].edges[2] = tmp_edge
                 
-
                 # root
                 if self.mainid2rootid[self.morphemeid2mainid[_id]] not in root_count:
                     root_count[self.mainid2rootid[self.morphemeid2mainid[_id]]] = 0
@@ -401,7 +399,6 @@ class TemplaticPhonologyModel:
                 
                 pattern_count[self.mainid2patternid[self.morphemeid2mainid[_id]]] += 1
                 root_count[self.mainid2rootid[self.morphemeid2mainid[_id]]] += 1
-
 
         # initialize 
         old = morphemes_count
@@ -445,7 +442,7 @@ class TemplaticPhonologyModel:
 
     def inference(self, iterations=2):
         """
-        Perform Infernece by EP
+        Perform Inference by EP
         """
         # only done once
         for f in self.phono_factors:
@@ -468,12 +465,21 @@ class TemplaticPhonologyModel:
             stuff.append(v)
 
         for iteration in xrange(iterations):
-            shuffle(stuff)
-            for thing in stuff:
-                thing.pass_message()
-            
-            
-        for f in self.binyan_factors:
-            print f
-            f.pass_up_through()
+            for f in self.concat_factors:
+                f.pass_message()
+            for v in self.level3_variables:
+                v.pass_message()
+                
+
+            if iteration > 3:
+                for f in self.binyan_factors:
+                    f.pass_up_through()
+                for v in self.pattern_variables:
+                    v.pass_message()
+                for v in self.root_variables:
+                    v.pass_message()
+                for v in self.alignment_variables:
+                    v.pass_message()
+                for f in self.binyan_factors:
+                    f.pass_down_through()
             

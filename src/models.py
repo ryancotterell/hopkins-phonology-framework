@@ -335,7 +335,7 @@ class TemplaticPhonologyModel:
         for k, v in pattern_count.items():
             self.pattern_variables[self.pattern2id[k]] = Variable_EP("Pattern " + k, self.sigma, v)
             self.alignment_variables[self.pattern2id[k]] = Variable_Pruned("Alignment " + k, self.delta, v)
-      
+            
         # binyan factors
         for main, _id in self.main2id.items():
             self.binyan_factors[_id] = TwoWayTemplatic(self.class2, self.class1, self.sigma, self.delta)
@@ -366,10 +366,6 @@ class TemplaticPhonologyModel:
             self.level3_variables[_id] = Variable_EP(morpheme, self.sigma, 0)
             self.unary_factors[_id] = ExponentialUnaryFactor(self.sigma)
 
-            tmp_edge = Edge(self.level3_variables[_id], self.unary_factors[_id], self.sigma)
-            self.unary_factors[_id].edges[0] = tmp_edge
-            self.level3_variables[_id].edges[0] = tmp_edge
-
             if self.morpheme_id_to_type[_id] == 1: # is a stem?
                 # binyan
                 tmp_edge = Edge(self.level3_variables[_id], self.binyan_factors[self.morphemeid2mainid[_id]], self.sigma)
@@ -399,6 +395,11 @@ class TemplaticPhonologyModel:
                 
                 pattern_count[self.mainid2patternid[self.morphemeid2mainid[_id]]] += 1
                 root_count[self.mainid2rootid[self.morphemeid2mainid[_id]]] += 1
+
+            else:
+                tmp_edge = Edge(self.level3_variables[_id], self.unary_factors[_id], self.sigma)
+                self.unary_factors[_id].edges[0] = tmp_edge
+                self.level3_variables[_id].edges[0] = tmp_edge
 
         # initialize 
         old = morphemes_count
@@ -463,14 +464,24 @@ class TemplaticPhonologyModel:
 
         for v in self.level3_variables:
             stuff.append(v)
-
+            
         for iteration in xrange(iterations):
+
+            for f in self.concat_factors:
+                f.pass_to_right()
+
+            for v in self.level3_variables:
+                if u"+" not in str(v):
+                    v.pass_message()
+
             for f in self.concat_factors:
                 f.pass_message()
-            for v in self.level3_variables:
-                v.pass_message()
                 
-
+            
+            for v in self.level3_variables:
+                if u"+" in str(v):
+                    v.pass_message()
+                
             if iteration > 3:
                 for f in self.binyan_factors:
                     f.pass_up_through()
@@ -482,4 +493,4 @@ class TemplaticPhonologyModel:
                     v.pass_message()
                 for f in self.binyan_factors:
                     f.pass_down_through()
-            
+

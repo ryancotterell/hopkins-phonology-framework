@@ -193,16 +193,15 @@ def phonology_edit(sigma,COPY=.9):
             if v2 == 0:
                 continue
             if v1 == v2:
-                
-                edit.add_arc(0,0,k1,k2,-np.log(COPY))
+                edit.add_arc(0, 0, k1, k2, -np.log(COPY))
             else:
-                edit.add_arc(0,0,k1,k2,-np.log( (1.0 - COPY) / (2 * (len(sigma)-1))))
+                edit.add_arc(0, 0, k1, k2, -np.log( (1.0-COPY) / (2*(len(sigma)-1))))
                 
         # deletions
-        edit.add_arc(0,0,k1,fst.EPSILON,-np.log( (1.0 - COPY) / (2 * (len(sigma) - 1))))
+        edit.add_arc(0, 0, k1, fst.EPSILON, -np.log( (1.0-COPY) / (2*(len(sigma)-1))))
         
         # insertions
-        edit.add_arc(0,0,fst.EPSILON,k1,-np.log( (1.0 - COPY) / (2 * (len(sigma)-1))))
+        edit.add_arc(0, 0, fst.EPSILON, k1, -np.log( (1.0-COPY) / (2*(len(sigma)-1))))
 
     return edit
 

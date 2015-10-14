@@ -27,7 +27,8 @@ class ExponentialUnaryFactor(Factor):
         """
         Pass the message down
         """
-        self.edges[0].m_v = self.unary
+        if self.edges[0] is not None:
+            self.edges[0].m_v = self.unary
     
 
 class PhonologyFactor(Factor):

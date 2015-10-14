@@ -1,7 +1,7 @@
 import variational_approximation as va
 import fst
 import numpy as np
-import collections
+from collections import defaultdict as dd
 from utils import peek
 
 class Variable(object):
@@ -148,10 +148,10 @@ class Variable_EP(Variable):
                 # bigrams
                 for c1, c2 in zip(list("^" + string), list(string)):
                     contexts.add(c1+c2)
-                if len(self.edges) < 5:
-                    # trigrams
-                    for (c1, c2), c3 in zip(zip(list("^" + string), list(string)), list(string)):
-                        contexts.add(c1+c2+c3)
+                # if len(self.edges) < 5:
+                #     # trigrams
+                #     for (c1, c2), c3 in zip(zip(list("^^" + string), list("^" + string)), list(string)):
+                #         contexts.add(c1+c2+c3)
                         
         contexts = list(contexts)
 
@@ -163,12 +163,12 @@ class Variable_EP(Variable):
             for edge in self.edges[:]:
                 if edge == None:
                     continue
+                print "EDGE", edge, edge.m_v
                 #if len(self.edges) == 3:
                     
                     #print contexts
-                print str(i) + "\tEDGE M_V", edge.v
-                peek(edge.m_v, 10)
-
+                # print str(i) + "\tEDGE M_V", edge.v
+                # peek(edge.m_v, 10)
                 tmp = edge.m_v >> belief  #fst.LogVectorFst(fst.StdVectorFst(edge.m_v).shortest_path(n=10))
                 approx = None
                 #if len(self.edges) > 3:
@@ -179,9 +179,11 @@ class Variable_EP(Variable):
                 
                 approx.q.isyms = self.sigma
                 approx.q.osyms = self.sigma
-                
+                print "HERE1"
                 approx.estimate()
                 belief = approx.q
+                print "HERE2"
+                """
                 print "APPROX"
                 try:
                     peek(approx.q, 10)
@@ -191,6 +193,7 @@ class Variable_EP(Variable):
                         for arc in state:
                             print arc
                     import sys; sys.exit(0)
+                """
                 #print "B"
                 #peek(belief, 10)
                 #edge.m_f = belief

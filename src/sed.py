@@ -8,7 +8,7 @@ class SED(object):
     """
     Stochastic Edit Distance
     """
-    def __init__(self, alphabet, llc, urc, ulc, EOS="#"):
+    def __init__(self, alphabet, llc, ulc, urc, EOS="#"):
         self.alphabet = alphabet
 
         self.llc = llc
@@ -52,7 +52,8 @@ class SED(object):
         give in Cotterell et al. (2014)
         """
         self.machine = fst.LogVectorFst()
-        
+        self.machine.isyms = self.sigma
+        self.machine.osyms = self.sigma
         self.ngram2state = Alphabet()
 
         # build-up states
@@ -60,7 +61,7 @@ class SED(object):
             for urc in it.product(self.alphabet, repeat=i):
                 urc = "".join(urc)
                 if self._valid_rc(urc):
-                    self.ngram2state.add((self.EOS*self.ulc, self.EOS*self.llc, "".join(urc)))
+                    self.ngram2state.add((self.EOS*self.llc, self.EOS*self.ulc, "".join(urc)))
                     self.machine.add_state()
         self.machine.start = 0
 
@@ -73,67 +74,97 @@ class SED(object):
                 ulc = "".join(ulc)
                 if not self._valid_lc(ulc):
                     continue
-                for urc in it.product(self.alphabet, repeat=self.urc-1):
+                for urc in it.product(self.alphabet, repeat=max(0, self.urc-1)):
                     urc = "".join(urc)
                     if not self._valid_rc(urc):
                         continue
-                    self.ngram2state.add((llc, ulc, urc))
-                    self.machine.add_state()
+
+                    if (llc, ulc, urc) not in self.ngram2state:
+                        self.ngram2state.add((llc, ulc, urc))
+                        self.machine.add_state()
 
                 for urc in it.product(self.alphabet, repeat=self.urc):
                     urc = "".join(urc)
                     if not self._valid_rc(urc):
                         continue
+                    
                     self.ngram2state.add((llc, ulc, urc))
                     self.machine.add_state()
+                    if urc[0] == self.EOS:
+                        self.machine[self.ngram2state[(llc, ulc, urc)]].final = True
 
+        self.ngram2state.freeze()
 
-        # great the machine
+        # create the machine
         for ngram in self.ngram2state:
             llc, ulc, urc = ngram
             state1 = self.ngram2state[ngram]
             if len(urc) < self.urc:
                 for symbol in self.alphabet:
-                    if symbol == self.EOS:
-                        continue
-                    urc2 = urc+symbol
-                    if not self._valid_rc(urc2):
-                        continue
-                    try:
-                        #print llc, ulc, urc2
+                    if symbol != self.EOS:
+                        urc2 = urc+symbol
+                        if not self._valid_rc(urc2):
+                            continue
+
                         state2 = self.ngram2state[(llc, ulc, urc2)]
                         self.machine.add_arc(state1, state2, self.sigma.find(symbol), 0, 0.0)
-                    except KeyError:
-                        print "ERROR"
+                    else:
+                        urc2 = urc+self.EOS
+                        if not self._valid_rc(urc2):
+                            continue
 
+                        state2 = self.ngram2state[(llc, ulc, urc2)]
+                        self.machine.add_arc(state1, state2, 0, 0, 0.0)
+
+
+                        
             else:
                 for symbol in self.alphabet:
                     if symbol == self.EOS:
                         continue
                     
-                    # substitution
-                    llc2 = llc[1:]+symbol
-                    ulc2 = ulc[:1]+urc[0]
-                    urc2 = urc[1:]
-                    state2 = self.ngram2state[(llc2, ulc2, urc2)]
-                    self.machine.add_arc(state1, state2, 0, self.sigma.find(symbol), 0.0)
-
                     # insertion
                     llc2 = llc[1:]+symbol
+                    # special case
+                    if self.llc == 0:
+                        llc2 = ''
+
                     state2 = self.ngram2state[(llc2, ulc, urc)]
                     self.machine.add_arc(state1, state2, 0, self.sigma.find(symbol), 0.0)
 
+
+                    if len(urc) > 0 and urc[0] != self.EOS:
+                        # substitution
+                        llc2 = llc[1:]+symbol
+                        if self.llc == 0:
+                            llc2 = ''
+
+                        ulc2 = ulc[1:]+urc[0]
+                        urc2 = urc[1:]
+                        ngram2 = llc2, ulc2, urc2
+                        state2 = self.ngram2state[(llc2, ulc2, urc2)]
+                        self.machine.add_arc(state1, state2, 0, self.sigma.find(symbol), 0.0)
+
                 # deletion
-                ulc = ulc[1:]+urc[0]
-                urc2 = urc[1:]
-                state2 = self.ngram2state[(llc, ulc, urc2)]
-                self.machine.add_arc(state1, state2, 0, 0, 0.0)
+                if urc[0] != self.EOS:
+                    ulc = ulc[1:]+urc[0]
+                    urc2 = urc[1:]
+                    state2 = self.ngram2state[(llc, ulc, urc2)]
+                    self.machine.add_arc(state1, state2, 0, 0, 0.0)
                 
-        print len(self.machine)
+
+        for k, v in self.ngram2state.items():
+            print k, v
+
+
+        for state in self.machine:
+            print state
+            for arc in state:
+                print arc
 
 def main():
     letters = "a"#bcdefghijklmnopqrstuvwxyz"
-    sed = SED(["#"] + list(letters), 1, 1, 1)
+    sed = SED(["#"] + list(letters), 0, 1, 1)
     sed.create_machine()
     #cProfile.run('letters = "abcdefghijklmnopqrstuvwxyz"; sed = SED(["#"] + list(letters), 0, 2, 2); sed.create_machine()')
 

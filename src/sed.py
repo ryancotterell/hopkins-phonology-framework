@@ -29,6 +29,8 @@ class SED(object):
         # features
         self.atoms = -1
         self.features = []
+        self.feature2origin = []
+        self.data_features = []
 
         # machines
         self.create_machine()
@@ -197,7 +199,9 @@ class SED(object):
                 
     def create_features(self):
         " Extract the atomic features "
+
         self.features = []
+        self.feature2origin = [-1]
         counter = 1
         for state, arcs in self.ids.items():
             lst = []
@@ -206,10 +210,12 @@ class SED(object):
                     lst.append(-1)
                 action, value, ngram = tup
                 lst.append(counter)
+                self.feature2origin.append(state)
                 counter += 1
             self.features.append((state, lst))
         self.atoms = counter
-        
+
+
     def feature_on_arcs(self):
         " Put the feature integers on the arcs "
         
@@ -223,6 +229,15 @@ class SED(object):
                 arc.weight = fst.LogWeight(lst[i])
                 i += 1
 
+        """
+        for state in self.machine:
+            print "STATE", state, float(state.final)
+            for arc in state:
+                print "ARC", arc, float(arc.weight)
+        print; print; print
+        import sys; sys.exit(0)
+        """
+                
     def copy(self, f):
         " Copy a transducer "
 
@@ -230,8 +245,11 @@ class SED(object):
             raise("Requires Log-Transducer")
         
         g = fst.LogVectorFst()
+        g.isyms = self.sigma
+        g.osyms = self.sigma
         for _ in xrange(len(f)):
             g.add_state()
+        g.start = 0
 
         for i, state in enumerate(f):
             g[i].final = state.final
@@ -245,23 +263,38 @@ class SED(object):
 
         for state in f:
             if state.final != fst.LogWeight.ZERO:
-                state.final = fst.LogWeight.ZERO
+                state.final = fst.LogWeight.ONE
             for arc in state:
-                arc.weight = fst.LogWeight.ZERO
+                arc.weight = fst.LogWeight.ONE
+
 
     def extract_features(self, data):
         " Extract the features on the arcs "
         
+        self.data_features = []
         self.feature_on_arcs()
         for x, y in data:
             x_prime = self.copy(x)
             y_prime = self.copy(y)
             self.to_zeros(x_prime)
+            self.to_zeros(y_prime)
+            result = x_prime >> self.machine >> y_prime
 
-            for state in x:
+            features = []
+            for i, state in enumerate(result):
+                lst = []
+                if state.final != fst.LogWeight.ZERO:
+                    lst.append(int(state.final))
+                else:
+                    lst.append(-1)
+                    
                 for arc in state:
-                    print arc
-            
+                    lst.append(int(arc.weight))
+
+                features.append((i, lst))
+
+            self.data_features.append(features)
+
 
     def local_renormalize(self):
         """
@@ -296,7 +329,7 @@ class SED(object):
             ll = log(exp(ll)+exp(self.lll(x, y)))
         return ll
 
-    def grad_fd(self, data, EPS=0.001):
+    def grad_fd(self, data, EPS=0.1):
         " gradient for the locally normalized models with a finite-difference "
         
         g = zeros((self.atoms))
@@ -304,6 +337,7 @@ class SED(object):
             for i in xrange(self.atoms):
                 self.theta[i] += EPS
                 self.local_renormalize()
+
                 ll1 = self.lll(x, y)
                 self.theta[i] -= 2 * EPS
                 self.local_renormalize()
@@ -318,75 +352,72 @@ class SED(object):
 
     def grad(self, data):
         " gradient for locally normalized models "
-        pass
-        """
-        for x, y in data:
+        
+        self.local_renormalize()
+        g = zeros((self.atoms))
+        # TODO : to fix
+        counts = dd(float)
+        for i, (x, y) in enumerate(data):
             result = x >> self.machine >> y
+
             alphas = result.shortest_distance()
             betas = result.shortest_distance(True)
-            print [ exp(-float(x)) for x in alphas ]
-            print [ exp(-float(x)) for x in betas ]
-            print exp(-float(self.machine[1].final))
-            print betas
+            Z = betas[0]
 
-            for state in self.machine:
-                print "STATE", state
-                for arc in state:
-                    print "ARC", arc
-
-
-            one = exp(-float(alphas[2] * betas[2])) * 1.0 / 3
-            two = exp(-float(alphas[2] * betas[2])) * 1.0 / 3
-            print "ONE", one
-            print "TWO", two
-            print two - one
-        """
-        """
-            for state_id, lst in self.features:
-                state = self.machine[state_id]
-
-                if lst[0] != -1:
-                    # FINAL WEIGHT FIRST
+            features = self.data_features[i]
+            for state_id, lst in features:
+                if lst[0] == -1:
                     pass
-                    #state.final = fst.LogWeight(-self.theta[lst[0]]+Z)
+                else:
+                    feat = lst[0]
+                    score = exp(-float(alphas[state_id] * betas[state_id] / Z))
+                    g[feat] += score
+                    counts[self.feature2origin[feat]] += score
 
-        """
+                state = result[state_id]
+                for j, arc in enumerate(state):
+                    feat = lst[j+1]
+                    if feat != 0.0:
+                        score = exp(-float(alphas[state_id] * betas[arc.nextstate] * arc.weight / Z))
+                        g[feat] += score
+                        counts[self.feature2origin[feat]] += score
+
+        for i, (k, v) in enumerate(counts.items()):
+            if k != -1:
+                l, lst = self.features[i]
+                assert k == l
+
+                # state
+                if self.machine[k].final != fst.LogWeight.ZERO:
+                    g[lst[0]] -= v * exp(-float(self.machine[k].final))
+                # arcs
+                for j, arc in enumerate(self.machine[k]):
+                    g[lst[j+1]] -= v * exp(-float(arc.weight))
+            
+        return g
+
 
 def main():
-    letters = "a"#bcdefg"# defghijklmnopqrstuvwxyz"
+    letters = "a"#bbcdefg"# defghijklmnopqrstuvwxyz"
     sed = SED(["#"]+list(letters), 0, 1, 0)
-    #sed.theta = np.random.rand(sed.atoms)
+    sed.theta = np.random.rand(sed.atoms) 
+
     sed.local_renormalize()
 
     x = fst.linear_chain("a", syms=sed.sigma, semiring="log")
     y = fst.linear_chain("a", syms=sed.sigma, semiring="log")
     data = [(x, y)]
 
+    #print sed.grad_fd(data, EPS=0.0001)
+
     sed.extract_features(data)
+    sed.local_renormalize()
 
-    #print sed.features
-    #print sed.ll(data)
-    #print sed.grad_fd(data)
-    #sed.grad(data)
-    """
-    string = fst.linear_chain("aaaaa", syms=sed.sigma, semiring="log")
-    result = string >> sed.machine
-    result.project_output()
-    for state in result:
-        Z = 0.0
-        Z += exp(-float(state.final))
-        for arc in state:
-            Z += exp(-float(arc.weight))
-        print "Z", Z
-    print exp(-float(result.shortest_distance(True)[0]))
-    """
+    g = sed.grad(data)
+    g_fd = sed.grad_fd(data)
+    print np.allclose(g, g_fd, atol=0.01)
 
-    """
-    for state in sed.machine:
-        print state, state.final
-        for arc in state:
-            print arc.weight
-    """
+
     #cProfile.run('letters = "abcdefghijklmnopqrstuvwxyz"; sed = SED(["#"] + list(letters), 0, 2, 2); sed.create_machine()')
 
 if __name__ == "__main__":

@@ -6,38 +6,33 @@ from collections import defaultdict as dd
 from scipy.optimize import fmin_l_bfgs_b as lbfgs
 from arsenal.alphabet import Alphabet
 from pfst import PFST
-from last_vowel import LastVowel
-from utils import peek
 import cProfile
 
+class Skip(PFST):
+    """
+    Skip-Class Model 
+    """
+    def __init__(self, alphabet, remember, llc, urc, ulc, EOS="#"):
+        super(Skip, self).__init__(alphabet)
 
-class SED(PFST):
-    """
-    Stochastic Edit Distance
-    """
-    def __init__(self, alphabet, llc, urc, ulc, EOS="#"):
-        super(SED, self).__init__(alphabet)
+        self.remember = remember
+        self.remember_set = set(remember)
 
         self.llc = llc
         self.urc = urc
         self.ulc = ulc
 
         self.machine = None
-        self.EOS = EOS
 
+        self.EOS = EOS
         self.sigma = fst.SymbolTable()
         for symbol in self.alphabet:
             if symbol != self.EOS:
                 self.sigma[symbol] = len(self.sigma)
-        
-        # machines
-        self.create_machine()
-        self.create_features()
-        self.feature_on_arcs()
 
-        # weights
-        self.theta = zeros(self.atoms)
-        
+        self.create_machine()
+
+
     def _valid_rc(self, context):
         """
         Checks whether the passed in
@@ -61,9 +56,9 @@ class SED(PFST):
 
     def create_machine(self):
         """
-        Creates the stochastic edit distance
-        machine using the construction
-        give in Cotterell et al. (2014)
+        Creates a machine that remembers a certain class of
+        letters. For instance, this will construct a machine that
+        remembers the last sibilant or the last vowel
         """
         self.machine = fst.LogVectorFst()
         self.machine.isyms = self.sigma
@@ -72,7 +67,7 @@ class SED(PFST):
 
         # build-up states
         for i in xrange(self.urc):
-            for urc in it.product(self.alphabet, repeat=i):
+            for urc in it.product(self.remember, repeat=i):
                 urc = "".join(urc)
                 if self._valid_rc(urc):
                     self.ngram2state.add((self.EOS*self.llc, self.EOS*self.ulc, "".join(urc)))
@@ -80,15 +75,15 @@ class SED(PFST):
         self.machine.start = 0
 
         # full context
-        for llc in it.product(self.alphabet, repeat=self.llc):
+        for llc in it.product(self.remember, repeat=self.llc):
             llc = "".join(llc)
             if not self._valid_lc(llc):
                 continue
-            for ulc in it.product(self.alphabet, repeat=self.ulc):
+            for ulc in it.product(self.remember, repeat=self.ulc):
                 ulc = "".join(ulc)
                 if not self._valid_lc(ulc):
                     continue
-                for urc in it.product(self.alphabet, repeat=max(0, self.urc-1)):
+                for urc in it.product(self.remember, repeat=max(0, self.urc-1)):
                     urc = "".join(urc)
                     if not self._valid_rc(urc):
                         continue
@@ -97,7 +92,7 @@ class SED(PFST):
                         self.ngram2state.add((llc, ulc, urc))
                         self.machine.add_state()
 
-                for urc in it.product(self.alphabet, repeat=self.urc):
+                for urc in it.product(self.remember, repeat=self.urc):
                     urc = "".join(urc)
                     if not self._valid_rc(urc):
                         continue
@@ -118,22 +113,29 @@ class SED(PFST):
             counter = 1
             if len(urc) < self.urc:
                 for symbol in self.alphabet:
-                    if symbol != self.EOS:
-                        urc2 = urc+symbol
-                        if not self._valid_rc(urc2):
-                            continue
 
+                    if symbol != self.EOS:
+                        urc2 = urc
+                        if symbol in self.remember_set:
+                            urc2 = urc[1:]+symbol
+                            if not self._valid_rc(urc2):
+                                continue
+            
                         state2 = self.ngram2state[(llc, ulc, urc2)]
                         self.machine.add_arc(state1, state2, self.sigma.find(symbol), 0, 0.0)
 
+                    """
                     else:
                         urc2 = urc+self.EOS
                         if not self._valid_rc(urc2):
                             continue
 
                         state2 = self.ngram2state[(llc, ulc, urc2)]
+                        print "STATE", state1, state2, 0, 0, 0.0
                         self.machine.add_arc(state1, state2, 0, 0, 0.0)
+                    """
 
+            """
             else:
                 for symbol in self.alphabet:
                     if symbol == self.EOS:
@@ -182,55 +184,15 @@ class SED(PFST):
                     self.ids[state1][counter] = ('del', '', (llc, ulc, urc))
                     counter += 1
 
-
-
-
+            """
 
 def main():
-    letters = "abcdefghijklmnopqrstuvwxyzAE"
-    sed = SED(["#"]+list(letters), 1, 1, 0)
+    letters = "abcdefi"
+    remember = "aei"
+    skip = Skip(letters, remember, 2, 2, 2)
 
-    lv = LastVowel(list(letters), list("aeAEiouy"))
-
-    x = fst.linear_chain("bAbabAbap", syms=lv.sigma, semiring="log")
-    #sed.theta = np.random.rand(sed.atoms) 
-    print "ONE"
-    sed.local_renormalize()
-
-    x = fst.linear_chain("bAbAbAbAp", syms=sed.sigma, semiring="log")
-    y = fst.linear_chain("bAbabAbap", syms=sed.sigma, semiring="log")
-    data = [(x, y)]
-
-    #print sed.grad_fd(data, EPS=0.0001)
-    print "TWO"
-    sed.extract_features(data)
-    lv.extract_features([ y for x, y in data ])
-    print "THREE"
-    sed.local_renormalize()
-    lv.local_renormalize()
-
-    print "FOUR"
-    import time
-    start = time.time()
-    sed.grad(data)
-    end = time.time()
-    print end - start
-    print sed.decode([ x for x, y in data ], n=5)
-    sed.train(data)
-    print sed.decode([ x for x, y in data ], n=5)
-    
-    lv.train([ y for x, y in data ])
-    
-    
-    x = data[0][0]
-    tmp = x >> sed.machine
-    tmp.project_output()
-    tmp.arc_sort_output()
-    result = tmp >> lv.machine
-    print len(result)
-    peek(result, 10)
-    
-    #cProfile.run('letters = "abcdefghijklmnopqrstuvwxyz"; sed = SED(["#"] + list(letters), 0, 2, 2); sed.create_machine()')
 
 if __name__ == "__main__":
     main()
+
+

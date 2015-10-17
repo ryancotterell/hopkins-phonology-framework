@@ -11,6 +11,8 @@ from factors import ChangeFactor
 from factors import Factor
 from edges import Edge
 
+import pstats, cProfile
+
 class Node(object):
     """
     Node in the phylogenetic tree
@@ -130,38 +132,52 @@ class Reconstruction(object):
                 print "PASSING", edge.f, "to", node
                 edge.f.pass_message(1)
                 #peek(edge.m_v, 10)    
-                
+       
+
         # pass down
+
         print "...passing down"
         for i, node in self.forward:
             #print i, node
             if isinstance(node, Factor):
                 edge = node.edges[i]
-                print "PASSING", edge.v, "to", node, i
-                #edge.v.pass_message(edge.i)
+                print "PASSING", edge.v, "to", node, edge.i
+                edge.v.pass_message(edge.i)
                 #peek(edge.m_f, 10)
 
             else:
                 edge = node.edges[i]
                 print "PASSING", edge.f, "to", node
-                #edge.f.pass_message(1)
+                edge.f.pass_message(0)
                 #peek(edge.m_v, 10)    
+
                 
-
-
-
-        belief = self.variables[-1].compute_belief()
-        peek(belief, 10)
-                
+        """
+        for var in self.variables:
+            if isinstance(var, Variable_EP2):
+                belief = var.compute_belief()
+                print var
+                peek(belief, 10)
+        """
 
                 
         
 def main():
     # nodes
+
     spanish = Node("Spanish", "diente")
     portuguese = Node("Portuguese", "dente")
     french = Node("French", "dent")
     italian = Node("Italian", "dente")
+
+    
+    """
+    spanish = Node("Spanish", "curto")
+    portuguese = Node("Portuguese", "corto")
+    french = Node("French", "curt")
+    italian = Node("Italian", "corte")
+    """
+
 
     iberian = Node("Iberian")
     western = Node("Western")
@@ -183,7 +199,12 @@ def main():
         counter += 1
 
     reconstruction = Reconstruction(sigma, latin, 7)
-    reconstruction.inference()
+    #reconstruction.inference()
+
+    cProfile.runctx("reconstruction.inference()", globals(), locals(), "Profile.prof")
+    s = pstats.Stats("Profile.prof")
+    s.strip_dirs().sort_stats("time").print_stats()
+
 
 if __name__ == "__main__":
     main()

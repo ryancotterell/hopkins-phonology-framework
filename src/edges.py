@@ -5,10 +5,12 @@ class Edge:
     """
     Edge connecting a factor and a variable
     """
-    def __init__(self, v, f, sigma):
+    def __init__(self, v, f, sigma, child=False, i=-1, j=-1):
         self.v = v
         self.f = f
         self.sigma = sigma
+        self.child = child
+        self.i, self.j = i, j
         
         # variable message
         self.m_v = fst.LogVectorFst(self.sigma, self.sigma)

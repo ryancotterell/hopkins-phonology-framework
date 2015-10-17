@@ -182,16 +182,18 @@ def make_splitter():
 
 
 
-def phonology_edit(sigma,COPY=.9):
+def phonology_edit(sigma, COPY=.9):
     REMAINDER = (1.0 - COPY)
-    edit = fst.LogTransducer(sigma,sigma)
+    edit = fst.LogTransducer(sigma, sigma)
     edit[0].final = True
-    for k1,v1 in sigma.items():
+    for k1, v1 in sigma.items():
         if v1 == 0:
             continue
-        for k2,v2 in sigma.items():
+        for k2, v2 in sigma.items():
             if v2 == 0:
                 continue
+
+            # substitutions
             if v1 == v2:
                 edit.add_arc(0, 0, k1, k2, -np.log(COPY))
             else:

@@ -52,6 +52,39 @@ class PhonologyFactor(Factor):
         self.edges[1].m_v = self.ur
 
 
+class ChangeFactor(Factor):
+    """
+    Phonology Factor
+    """
+
+    def __init__(self, name, sigma, phonology):
+        self.name = name
+        self.edges = []
+        self.phonology = phonology
+        # Underlying FST
+        self.sigma = sigma
+
+    def pass_message(self, i):
+        """
+        Pass the message
+        """
+        if i == 0:
+            self.edges[0].m_f = fst.LogVectorFst(fst.StdVectorFst(self.edges[0].m_f).shortest_path(n=5))
+            self.edges[1].m_v = self.edges[0].m_f >> self.phonology
+            self.edges[1].m_v.project_output()
+        else:
+            self.edges[1].m_f = fst.LogVectorFst(fst.StdVectorFst(self.edges[1].m_f).shortest_path(n=5))
+
+            self.edges[0].m_v = self.edges[1].m_f >> self.phonology.inverse()
+            self.edges[0].m_v.project_output()
+
+
+    def __str__(self):
+        return self.name
+        
+    def __repr__(self):
+        return str(self)
+
 class TwoWayConcat(Factor):
     """
     Two Way Concatenative Factor

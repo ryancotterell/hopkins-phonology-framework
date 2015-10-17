@@ -3,6 +3,7 @@ import itertools as it
 import numpy as np
 from numpy import zeros, ones, exp, log
 from collections import defaultdict as dd
+from scipy.optimize import fmin_l_bfgs_b as lbfgs
 from arsenal.alphabet import Alphabet
 import cProfile
 
@@ -317,17 +318,19 @@ class SED(object):
 
     def lll(self, x, y):
         " examplar log-likelihood "
+
         result = x >> self.machine >> y
         return -float(result.shortest_distance(True)[0])
         
     def ll(self, data):
         " log-likelihood for locally normalized models "
-    
-        ll = 0.0
+
+        self.local_renormalize()        
+        ll = float("-inf")
         for x, y in data:
             # TODO: fix this!
             ll = log(exp(ll)+exp(self.lll(x, y)))
-        return ll
+        return -ll
 
     def grad_fd(self, data, EPS=0.1):
         " gradient for the locally normalized models with a finite-difference "
@@ -352,14 +355,12 @@ class SED(object):
 
     def grad(self, data):
         " gradient for locally normalized models "
-        
         self.local_renormalize()
         g = zeros((self.atoms))
         # TODO : to fix
         counts = dd(float)
         for i, (x, y) in enumerate(data):
             result = x >> self.machine >> y
-
             alphas = result.shortest_distance()
             betas = result.shortest_distance(True)
             Z = betas[0]
@@ -371,7 +372,7 @@ class SED(object):
                 else:
                     feat = lst[0]
                     score = exp(-float(alphas[state_id] * betas[state_id] / Z))
-                    g[feat] += score
+                    g[feat] -= score
                     counts[self.feature2origin[feat]] += score
 
                 state = result[state_id]
@@ -379,45 +380,83 @@ class SED(object):
                     feat = lst[j+1]
                     if feat != 0.0:
                         score = exp(-float(alphas[state_id] * betas[arc.nextstate] * arc.weight / Z))
-                        g[feat] += score
+                        g[feat] -= score
                         counts[self.feature2origin[feat]] += score
+   
+        # TODO:  can be made more efficient?
+        for i, lst in self.features:
+            if i in counts:
+                v = counts[i]
 
-        for i, (k, v) in enumerate(counts.items()):
-            if k != -1:
-                l, lst = self.features[i]
-                assert k == l
+                state = self.machine[i]
+                if lst[0] != -1:
+                    p = exp(-float(state.final))
+                    g[lst[0]] += p * v
 
-                # state
-                if self.machine[k].final != fst.LogWeight.ZERO:
-                    g[lst[0]] -= v * exp(-float(self.machine[k].final))
-                # arcs
-                for j, arc in enumerate(self.machine[k]):
-                    g[lst[j+1]] -= v * exp(-float(arc.weight))
-            
+                for j, arc in enumerate(state):
+                    p = exp(-float(arc.weight))
+                    g[lst[j+1]] += p * v
+
         return g
 
+    def train(self):
+        " trains the machine using L-BFGS "
+        def f(theta):
+            sed.theta = theta
+            return sed.ll(data)
+    
+        def g(theta):
+            sed.theta = theta
+            return sed.grad(data)
+    
+        lbfgs(f, sed.theta, fprime=g, disp=2)
+
+
+    def decode(self, data):
+        " decode the data "
+
+        strings = []
+        for x in data:
+            result = fst.StdVectorFst(x >> self.machine)
+            result.project_output()
+            best = result.shortest_path(n=1)
+            string = ""
+            for path in best.paths():
+                for arc in path:
+                    if arc.olabel != 0:
+                        string += best.osyms.find(arc.olabel)
+            strings.append(string)
+        return strings
+            
+                        
 
 def main():
-    letters = "a"#bbcdefg"# defghijklmnopqrstuvwxyz"
-    sed = SED(["#"]+list(letters), 0, 1, 0)
-    sed.theta = np.random.rand(sed.atoms) 
-
+    letters = "abcdefghijklmnopqrstuvwxyz"
+    sed = SED(["#"]+list(letters), 0, 2, 0)
+    #sed.theta = np.random.rand(sed.atoms) 
+    print "ONE"
     sed.local_renormalize()
 
-    x = fst.linear_chain("a", syms=sed.sigma, semiring="log")
-    y = fst.linear_chain("a", syms=sed.sigma, semiring="log")
+    x = fst.linear_chain("bbkitab", syms=sed.sigma, semiring="log")
+    y = fst.linear_chain("bbkitap", syms=sed.sigma, semiring="log")
     data = [(x, y)]
 
     #print sed.grad_fd(data, EPS=0.0001)
-
+    print "TWO"
     sed.extract_features(data)
+    print "THREE"
     sed.local_renormalize()
 
-    g = sed.grad(data)
-    g_fd = sed.grad_fd(data)
-    print np.allclose(g, g_fd, atol=0.01)
+    print "FOUR"
+    import time
+    start = time.time()
+    sed.grad(data)
+    end = time.time()
+    print end - start
+    print sed.decode([ x for x, y in data ])
 
-
+    print sed.decode([ x for x, y in data ])
+    
     #cProfile.run('letters = "abcdefghijklmnopqrstuvwxyz"; sed = SED(["#"] + list(letters), 0, 2, 2); sed.create_machine()')
 
 if __name__ == "__main__":

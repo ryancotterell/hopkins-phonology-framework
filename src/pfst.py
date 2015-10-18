@@ -63,11 +63,12 @@ class PFST(FST):
         " log-likelihood for locally normalized models "
 
         self.local_renormalize()        
-        ll = float("-inf")
+        ll = 0.0
         for x, y in data:
             # TODO: fix this!
-            ll = log(exp(ll)+exp(self.lll(x, y)))
-        return -ll
+            ll -= self.lll(x, y)
+
+        return ll
 
 
     def grad_fd(self, data, EPS=0.1):
@@ -86,7 +87,7 @@ class PFST(FST):
                 self.theta[i] += EPS
                 self.local_renormalize()
             
-                val = (ll1 - ll2) / (2.0 * EPS)
+                val = (ll2 - ll1) / (2.0 * EPS)
                 g[i] += val
 
         return g

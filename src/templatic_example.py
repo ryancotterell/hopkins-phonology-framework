@@ -67,8 +67,6 @@ for k, v in model.sigma.items():
     if v > 0:
         letters.append(k)
 sed = SED(letters, 0, 1, 0, sigma=model.sigma)
-# print letters
-# import sys; sys.exit(0)
 
 # train the model
 # iterations of EM
@@ -76,7 +74,7 @@ for iteration in xrange(1):
     # E-step
     model.inference(3)
     # M-step
-    data = model.training_data(n=1)[1:2]
+    data = model.training_data(n=1)
 
     for ur, sr in data:
         print "UR"
@@ -86,10 +84,8 @@ for iteration in xrange(1):
 
     sed.extract_features(data)
     sed.local_renormalize()
-    sed.ll(data)
-    sed.grad(data)
     sed.train(data)
-
+    
     print sed.decode([x for x, y in data ])
 
 #cProfile.runctx("model.inference(2)", globals(), locals(), "Profile.prof")

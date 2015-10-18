@@ -58,8 +58,10 @@ for word in words:
     print word.sr
 
 
+# CHICKEN EGG PROBLEM
+
 # make the model
-model = TemplaticPhonologyModel(words)
+model = TemplaticPhonologyModel(words, utils.phonology_edit(self.sigma, .99))
 
 # stochastic edit distance
 letters = []

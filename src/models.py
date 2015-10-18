@@ -186,12 +186,14 @@ class TemplaticPhonologyModel:
     """
     Model for templatic morphology
     """
-    def __init__(self, words):
+    def __init__(self, words, phonology):
 
         # CLASS
         vowels = set(["A", "a", "I", "i", "O", "o", "E", "e", "U", "u"])
         self.class1 = []
         self.class2 = []
+
+        self.phonology = phonology
 
         # get number of unique morphemes
         # cache their integer ids
@@ -346,7 +348,7 @@ class TemplaticPhonologyModel:
 
             self.level1_variables[_id] = Variable_Observed(sr, self.sigma, self.surface_forms[_id])
         
-            self.phono_factors[_id] = PhonologyFactor(self.sigma, utils.phonology_edit(self.sigma, .999))
+            self.phono_factors[_id] = PhonologyFactor(self.sigma, self.phonology)
             # add edge between observed node and phonology
             
             self.phono_factors[_id].edges[0] = Edge(self.level1_variables[_id], self.phono_factors[_id], self.sigma)

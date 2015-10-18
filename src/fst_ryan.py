@@ -68,11 +68,11 @@ class FST(object):
             raise("Requires Log-Transducer")
         
         g = fst.LogVectorFst()
-        g.isyms = self.sigma
-        g.osyms = self.sigma
+        g.isyms = f.isyms
+        g.osyms = f.osyms
         for _ in xrange(len(f)):
             g.add_state()
-        g.start = 0
+        g.start = f.start
 
         for i, state in enumerate(f):
             g[i].final = state.final

@@ -277,3 +277,26 @@ def extract_pre_approved(machines):
 
 
     return pre_approved
+
+
+def to(f, t="log"):
+    " Convert to a Std-Vector-Fst "
+    new = None
+    if t == "log":
+        new = fst.LogVectorFst()
+    else:
+        new = fst.StdVectorFst()
+        
+    new.isyms = f.isyms
+    new.osyms = f.osyms
+    for _ in f:
+        new.add_state()
+    new.start = f.start
+
+    for i, state_old in enumerate(f):
+        state_new = new[i]
+        state_new.final = float(state_old.final)
+        for arc in state_old:
+            new.add_arc(i, arc.nextstate, arc.ilabel, arc.olabel, float(arc.weight))
+
+    return new

@@ -67,15 +67,21 @@ for k, v in model.sigma.items():
     if v > 0:
         letters.append(k)
 sed = SED(letters, 0, 1, 0, sigma=model.sigma)
-
+print letters
+import sys; sys.exit(0)
 # train the model
 # iterations of EM
 for iteration in xrange(1):
     # E-step
     model.inference(3)
     # M-step
-    data = model.training_data(n=5)
-    print data
+    data = model.training_data(n=1)[:1]
+
+    for ur, sr in data:
+        print "UR"
+        peek(ur, 10)
+        print "SR"
+        peek(sr, 10)
     sed.extract_features(data)
     sed.local_renormalize()
     sed.train(data)

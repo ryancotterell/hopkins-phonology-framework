@@ -15,7 +15,7 @@ class SED(PFST):
     """
     Stochastic Edit Distance
     """
-    def __init__(self, alphabet, llc, urc, ulc, EOS="#"):
+    def __init__(self, alphabet, llc, urc, ulc, sigma=None, EOS="#"):
         super(SED, self).__init__(alphabet)
 
         self.llc = llc
@@ -25,10 +25,13 @@ class SED(PFST):
         self.machine = None
         self.EOS = EOS
 
-        self.sigma = fst.SymbolTable()
-        for symbol in self.alphabet:
-            if symbol != self.EOS:
-                self.sigma[symbol] = len(self.sigma)
+        if sigma is not None:
+            self.sigma = sigma
+        else:
+            self.sigma = fst.SymbolTable()
+            for symbol in self.alphabet:
+                if symbol != self.EOS:
+                    self.sigma[symbol] = len(self.sigma)
         
         # machines
         self.create_machine()
@@ -188,7 +191,7 @@ class SED(PFST):
 
 def main():
     letters = "abcdefghijklmnopqrstuvwxyzAE"
-    sed = SED(["#"]+list(letters), 1, 1, 0)
+    sed = SED(["#"]+list(letters), 0, 1, 0)
 
     lv = LastVowel(list(letters), list("aeAEiouy"))
 
@@ -217,9 +220,10 @@ def main():
     print end - start
     print sed.decode([ x for x, y in data ], n=5)
     sed.train(data)
+    lv.train([ y for x, y in data ])
+
     print sed.decode([ x for x, y in data ], n=5)
     
-    lv.train([ y for x, y in data ])
     
     
     x = data[0][0]

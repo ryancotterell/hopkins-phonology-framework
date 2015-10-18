@@ -246,10 +246,13 @@ class TwoWayConcat(Factor):
         """
         pass down (only for training)
         """
-        self.variables[0] = self.edges[2].message + self.separator + self.edges[1].message
+        # self.variables[0] = self.edges[1].m_f + self.separator + self.edges[2].m_f
+        self.variables[0] = self.edges[1].m_f + self.edges[2].m_f
+
         self.variables[0].project_output()
         self.variables[0].arc_sort_output()
 
+        self.edges[0].m_v = self.variables[0]
 
 class ThreeWayConcat(Factor):
     """

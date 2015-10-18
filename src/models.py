@@ -441,10 +441,25 @@ class TemplaticPhonologyModel:
                 self.concat_factors[_id].edges[morpheme_id_i+1] = tmp_edge
 
 
+    def training_data(self, n=5):
+        " Gets the training data "
+
+        for factor in self.concat_factors:
+            factor.pass_down()
+            print factor
+            peek(factor.variables[0], 10)
+
+        data = []
+        for var1, var2 in zip(self.level1_variables, self.level2_variables):
+            var2.compute_belief()
+            ur = fst.LogVectorFst(fst.StdVectorFst(var2.belief).shortest_path(n=n))
+            sr = var1.value
+            data.append((ur, sr))
+
+        return data
+
     def inference(self, iterations=2):
-        """
-        Perform Inference by EP
-        """
+        " Perform Inference by EP "
         # only done once
         for f in self.phono_factors:
             f.pass_up()
@@ -476,7 +491,6 @@ class TemplaticPhonologyModel:
 
             for f in self.concat_factors:
                 f.pass_message()
-                
             
             for v in self.level3_variables:
                 if u"+" in str(v):

@@ -12,12 +12,21 @@ class Variable(object):
         self._id = _id
         self.sigma = sigma
         self.edges = [None] * num_edges
-
+        self.belief = None
+        
     def pass_message(self):
         """
         Passes the message along
         """
         self.edges[1].m_f = self.edges[0].m_v
+
+    def compute_belief(self):
+        " Computes the belief "
+        
+        self.belief = self.edges[0].m_v
+        for edge in self.edges[1:]:
+            self.belief = self.belief >> edge.m_v
+
 
     def __str__(self):
         return "VAR: " + self._id
@@ -49,6 +58,7 @@ class Variable_Observed(Variable):
         
     def __repr__(self):
         return str(self)
+
 
 class Variable_Pruned(Variable):
     """
@@ -171,7 +181,8 @@ class Variable_EP(Variable):
             for edge in self.edges[:]:
                 if edge == None:
                     continue
-                print "EDGE", edge, edge.m_v
+               
+                #print "EDGE", edge, edge.m_v
                 #if len(self.edges) == 3:
                     
                     #print contexts
@@ -187,10 +198,9 @@ class Variable_EP(Variable):
                 
                 approx.q.isyms = self.sigma
                 approx.q.osyms = self.sigma
-                print "HERE1"
                 approx.estimate()
                 belief = approx.q
-                print "HERE2"
+
                 """
                 print "APPROX"
                 try:

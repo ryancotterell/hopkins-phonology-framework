@@ -73,6 +73,10 @@ class SED(PFST):
         self.machine.osyms = self.sigma
         self.ngram2state = Alphabet()
 
+        END = "END"
+        self.machine.add_state()
+        self.machine[0].final = True
+        self.ngram2state.add(END)
         # build-up states
         for i in xrange(self.urc):
             for urc in it.product(self.alphabet, repeat=i):
@@ -80,7 +84,8 @@ class SED(PFST):
                 if self._valid_rc(urc):
                     self.ngram2state.add((self.EOS*self.llc, self.EOS*self.ulc, "".join(urc)))
                     self.machine.add_state()
-        self.machine.start = 0
+        self.machine.start = 1
+        
 
         # full context
         for llc in it.product(self.alphabet, repeat=self.llc):
@@ -108,6 +113,7 @@ class SED(PFST):
                     self.ngram2state.add((llc, ulc, urc))
                     self.machine.add_state()
                     if urc[0] == self.EOS:
+                        self.machine.add_arc(self.ngram2state[(llc, ulc, urc)], 0, 0, 0, 0.0)
                         self.machine[self.ngram2state[(llc, ulc, urc)]].final = True
 
         # effectively an assertion statement
@@ -115,7 +121,10 @@ class SED(PFST):
         self.ids = dd(dict)
 
         # create the machine
+        
         for ngram in self.ngram2state:
+            if ngram == END:
+                continue
             llc, ulc, urc = ngram
             state1 = self.ngram2state[ngram]
             counter = 1
@@ -145,6 +154,7 @@ class SED(PFST):
                     # terminate
                     if self.machine[state1].final != fst.LogWeight.ZERO:
                         self.ids[state1][0] = ('end', '', (llc, ulc, urc))
+                        self.machine[state1].final = fst.LogWeight.ZERO
 
                     # insertion
                     llc2 = llc[1:]+symbol
@@ -191,21 +201,27 @@ class SED(PFST):
 
 def main():
     letters = "abcdefghijklmnopqrstuvwxyzAE"
-    letters = "bAbap"
-    sed = SED(["#"]+list(letters), 2, 2, 2)
+    #letters = "a"
+    sed = SED(["#"]+list(letters), 0, 1, 1)
 
     #lv = LastVowel(list(letters), list("aeAEiouy"))
 
+    
     #x = fst.linear_chain("bAbabAbap", syms=lv.sigma, semiring="log")
-    #sed.theta = np.random.rand(sed.atoms) 
+    print np.asarray(sed.theta)
+
+    sed.theta = np.zeros(sed.atoms) 
+    sed.theta = np.random.rand(sed.atoms) 
+    sed.local_renormalize()
+
     #print "ONE"
     sed.local_renormalize()
 
-    x = fst.linear_chain("bAbAbAbAp", syms=sed.sigma, semiring="log")
-    y = fst.linear_chain("bAbabAbap", syms=sed.sigma, semiring="log")
+    x = fst.linear_chain("ab", syms=sed.sigma, semiring="log")
+    y = fst.linear_chain("ac", syms=sed.sigma, semiring="log")
     data = [(x, y)]
 
-    #print sed.grad_fd(data, EPS=0.0001)
+    print "LL", sed.ll(data)
     print "TWO"
     sed.extract_features(data)
     
@@ -213,6 +229,13 @@ def main():
     print "THREE"
     sed.local_renormalize()
     #lv.local_renormalize()
+
+    # g_fd = sed.grad_fd(data, EPS=0.0001)
+    # g = sed.grad(data)
+    # print g
+    # print g_fd
+    # print np.allclose(g, g_fd, atol=0.01)
+    # import sys; sys.exit(0)
 
     print "FOUR"
     import time

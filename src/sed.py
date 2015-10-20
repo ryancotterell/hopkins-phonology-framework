@@ -218,19 +218,11 @@ def main():
     x = fst.linear_chain("a", syms=sed.sigma, semiring="log")
     y = fst.linear_chain("a", syms=sed.sigma, semiring="log")
     data = [(x, y)]
-    print x
-    print x.isyms
-    print x.osyms
-    print dir(x)
-    data = [ (x, y) for x, y in data ]
 
-    print "LL", sed.ll(data)
-    print "TWO"
-    import sys; sys.exit(0)
+    data = [ (x, y) for x, y in data ]
     sed.extract_features(data)
     
     #lv.extract_features([ y for x, y in data ])
-    print "THREE"
     sed.local_renormalize()
     #lv.local_renormalize()
 

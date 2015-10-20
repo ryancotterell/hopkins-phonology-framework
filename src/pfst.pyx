@@ -293,47 +293,6 @@ cdef class PFST(object):
         del middle
         del composed
 
-    cdef void _grad(self, data, double[:] g):
-        " gradient for locally normalized models "
-        self._local_renormalize(self.theta)
-        """
-        # TODO : to fix
-        #counts = dd(float)
-        cdef map[int, double] counts = map[int, double]()
-        cdef int i
-        for i, (x, y) in enumerate(data):
-            result = x >> self.machine >> y
-            alphas = result.shortest_distance()
-            betas = result.shortest_distance(True)
-            Z = betas[0]
-            features = self.data_features[i]
-            print alphas
-            print betas
-            for state_id, lst in features:
-                state = result[state_id]
-                for j, arc in enumerate(state):
-                    feat = lst[j]
-                    if feat != 0.0:
-                        score = exp(-float(alphas[state_id] * betas[arc.nextstate] * arc.weight / Z))
-                        g[feat] -= score
-                        counts[self.feature2origin[feat]] += score
-   
-        # TODO:  can be made more efficient?
-        for i, lst in self.features:
-            if i in counts:
-                v = counts[i]
-
-                state = self.machine[i]
-                #if lst[0] != -1:
-                #    p = exp(-float(state.final))
-                #    g[lst[0]] += p * v
-
-                for j, arc in enumerate(state):
-                    p = exp(-float(arc.weight))
-                    g[lst[j]] += p * v
-
-        return g
-        """
 
     def train(self, data):
         " trains the machine using L-BFGS "

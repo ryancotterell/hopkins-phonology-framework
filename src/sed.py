@@ -200,9 +200,9 @@ class SED(PFST):
 
 
 def main():
-    letters = "a"#bcdefghijklmnopqrstuvwxyzAE"
+    letters = "abcdefgAE"
     #letters = "a"
-    sed = SED(["#"]+list(letters), 0, 1, 1)
+    sed = SED(["#"]+list(letters), 1, 2, 0)
 
     #lv = LastVowel(list(letters), list("aeAEiouy"))
 
@@ -215,23 +215,32 @@ def main():
     sed.local_renormalize()
     #print "ONE"
     sed.local_renormalize()
-    x = fst.linear_chain("a", syms=sed.sigma, semiring="log")
-    y = fst.linear_chain("a", syms=sed.sigma, semiring="log")
+    x = fst.linear_chain("abcdefgAE", syms=sed.sigma, semiring="log")
+    y = fst.linear_chain("abcdefgAE", syms=sed.sigma, semiring="log")
     data = [(x, y)]
-
-    data = [ (x, y) for x, y in data ]
+    for i in xrange(300):
+        data.append((x, y))
     sed.extract_features(data)
     
     #lv.extract_features([ y for x, y in data ])
     sed.local_renormalize()
     #lv.local_renormalize()
 
-    # g_fd = sed.grad_fd(data, EPS=0.0001)
-    # g = sed.grad(data)
-    # print g
-    # print g_fd
-    # print np.allclose(g, g_fd, atol=0.01)
-    # import sys; sys.exit(0)
+    
+    #sed.theta = np.random.rand(sed.atoms) 
+    
+    """
+    g_fd = sed.grad_fd(data, EPS=0.0001)
+    g = sed.grad(data)
+    print g
+    print g_fd
+    print np.allclose(g, g_fd, atol=0.01)
+    """
+    
+    """
+    sed.train(data)
+    import sys; sys.exit(0)
+    
 
     print "FOUR"
     import time
@@ -240,9 +249,10 @@ def main():
     end = time.time()
     print end - start
     print sed.decode([ x for x, y in data ], n=5)
+    """
     cProfile.runctx("sed.grad(data)", {'sed' : sed, 'data' : data }, {})
 
-    #sed.train(data)
+    sed.train(data)
     #lv.train([ y for x, y in data ])
 
     #print sed.decode([ x for x, y in data ], n=5)

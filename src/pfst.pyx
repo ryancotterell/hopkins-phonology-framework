@@ -6,7 +6,7 @@
 #cython: cdivision=True
 #cython: infertypes=True
 #cython: c_string_type=unicode, c_string_encoding=ascii
-#cython: profile=False
+#cython: profile=True
 #distutils: language = c++
 #distutils: libraries = ['stdc++']
 #distutils: extra_compile_args = ["-std=c++11"]
@@ -37,7 +37,9 @@ cdef class PFST(object):
     cdef int atoms
     cdef vector[pair[int, vector[int]]] features
     cdef map[int, vector[int]] features_map
+    cdef map[int, double] counts
 
+    cdef vector[int] feature2origin
     cdef vector[vector[pair[int, vector[int]]]] data_features
     cdef double[:] theta
     cdef fst.LogVectorFst machine
@@ -53,7 +55,7 @@ cdef class PFST(object):
         self.features = vector[pair[int, vector[int]]]()
         self.features_map = map[int, vector[int]]()
 
-        self.feature2origin = []
+        self.feature2origin = vector[int]()
         self.data_features = vector[vector[pair[int, vector[int]]]]()
 
         self.theta = np.zeros((1))
@@ -62,14 +64,16 @@ cdef class PFST(object):
         " Extract the atomic features "
 
         self.features = vector[pair[int, vector[int]]]()
-        self.feature2origin = [-1]
+        self.feature2origin = vector[int]()
+        self.feature2origin.push_back(-1)
+
         counter = 1
         for state, arcs in self.ids.items():
             lst = []
             for i, (arc, tup) in enumerate(arcs.items()):
                 action, value, ngram = tup
                 lst.append(counter)
-                self.feature2origin.append(state)
+                self.feature2origin.push_back(state)
                 counter += 1
             self.features.push_back((state, lst))
             
@@ -154,7 +158,7 @@ cdef class PFST(object):
         ll = 0.0
         for x, y in data:
             # TODO: fix this!
-            ll -= self.lll(x, y)
+            ll += self.lll(x, y)
 
         return ll
 
@@ -175,7 +179,7 @@ cdef class PFST(object):
                 self.theta[i] += EPS
                 self.local_renormalize()
             
-                val = (ll2 - ll1) / (2.0 * EPS)
+                val = (ll1 - ll2) / (2.0 * EPS)
                 g[i] += val
 
         return g
@@ -183,46 +187,52 @@ cdef class PFST(object):
 
     def grad(self, data):
         " gradient for locally normalized models "
-        self.local_renormalize()
-        g = zeros((self.atoms))
-        # TODO : to fix
-        counts = dd(float)
+        self._local_renormalize(self.theta)
+        cdef double[:] g = zeros((self.atoms))
+    
+        cdef fst.LogVectorFst _x
+        cdef fst.LogVectorFst _y
+        self.counts = map[int, double]()
         for i, (x, y) in enumerate(data):
-            result = x >> self.machine >> y
-            alphas = result.shortest_distance()
-            betas = result.shortest_distance(True)
-            Z = betas[0]
-            features = self.data_features[i]
-            print alphas
-            print betas
-            for state_id, lst in features:
-                state = result[state_id]
-                for j, arc in enumerate(state):
-                    feat = lst[j]
-                    if feat != 0.0:
-                        score = exp(-float(alphas[state_id] * betas[arc.nextstate] * arc.weight / Z))
-                        g[feat] -= score
-                        counts[self.feature2origin[feat]] += score
-   
-        # TODO:  can be made more efficient?
-        for i, lst in self.features:
-            if i in counts:
-                v = counts[i]
+            _x, _y = x, y
+            self._observed(i, _x.fst, _y.fst, g)
 
-                state = self.machine[i]
-                #if lst[0] != -1:
-                #    p = exp(-float(state.final))
-                #    g[lst[0]] += p * v
+        cdef libfst.LogVectorFst machine = self.machine.fst[0]
+        cdef map[int, double].iterator mit
+        cdef libfst.ArcIterator[libfst.LogVectorFst] *it
 
-                for j, arc in enumerate(state):
-                    p = exp(-float(arc.weight))
-                    g[lst[j]] += p * v
+        cdef pair[int, double] p
+        cdef int state_id, j, feat
+        cdef double value, prob
+        cdef vector[int] lst
 
-        return g
+        mit = self.counts.begin()
+        while mit != self.counts.end():
+            p = deref(mit)
+            state_id = p.first
+            value = p.second
+            
+            lst = self.features_map[state_id]
+            it = new libfst.ArcIterator[libfst.LogVectorFst](machine, state_id)
+            j = 0
 
-    cdef void _observed(self, int i, libfst.LogVectorFst *x, libfst.LogVectorFst *y, double[:] g, map[int, double] counts):
+            while not it.Done():
+                arc = <libfst.LogArc*> &it.Value()
+                feat = lst[j]
+                if feat != 0.0:
+                    prob = exp(-arc.weight.Value())
+                    g[feat] += prob * value
+                j += 1
+                it.Next()
+
+            del it
+            inc(mit)
+
+        return np.asarray(g)
+
+    cdef void _observed(self, int i, libfst.LogVectorFst *x, libfst.LogVectorFst *y, double[:] g):
         " computes the observed counts for a given x, y pair "
-
+    
         cdef libfst.LogVectorFst machine = self.machine.fst[0]
         cdef libfst.LogVectorFst *middle = new libfst.LogVectorFst()
         cdef libfst.LogVectorFst *composed = new libfst.LogVectorFst()
@@ -241,25 +251,47 @@ cdef class PFST(object):
         cdef vector[libfst.LogWeight] alphas
         cdef vector[libfst.LogWeight] betas
 
-        libfst.ShortestDistance(composed[0], &betas, False)
+        libfst.ShortestDistance(composed[0], &alphas, False)
         libfst.ShortestDistance(composed[0], &betas, True)
 
         cdef double logZ = betas[0].Value()
-        cdef double score
-        cdef int j, state_id, feat
+        cdef double score, weight
+        cdef int j, state_id, feat, origin
 
-        """
-        features = self.data_features[i]
-        for state_id, lst in features:
-                state = result[state_id]
-                for j, arc in enumerate(state):
-                    feat = lst[j]
-                    if feat != 0.0:
-                        score = exp(-float(alphas[state_id] * betas[arc.nextstate] * arc.weight / Z))
-                        g[feat] -= score
-                        counts[self.feature2origin[feat]] += score
+        cdef vector[int] lst
+        cdef vector[pair[int, vector[int]]] features = self.data_features[i]
+        cdef vector[pair[int, vector[int]]].iterator vit
+        cdef libfst.ArcIterator[libfst.LogVectorFst] *it
 
-        """
+        cdef pair[int, vector[int]] p
+        vit = features.begin()
+        
+        while vit != features.end():
+            p = deref(vit)
+            state_id = p.first
+            lst = p.second
+            j = 0
+            
+            it = new libfst.ArcIterator[libfst.LogVectorFst](composed[0], state_id)
+            while not it.Done():
+                arc = <libfst.LogArc*> &it.Value()
+                feat = lst[j]
+                if feat != 0.0:
+                    score = exp(-alphas[state_id].Value() - betas[arc.nextstate].Value() - arc.weight.Value() + logZ)
+                    g[feat] -= score
+                    origin = self.feature2origin[feat]
+                    if self.counts.count(origin) == 0:
+                        self.counts[origin] = score
+                    else:
+                        self.counts[origin] += score
+
+                j += 1
+                it.Next()
+            del it
+            inc(vit)
+
+        del middle
+        del composed
 
     cdef void _grad(self, data, double[:] g):
         " gradient for locally normalized models "

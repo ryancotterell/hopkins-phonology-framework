@@ -200,7 +200,7 @@ class SED(PFST):
 
 
 def main():
-    letters = "abcdefghijklmnopqrstuvwxyzAE"
+    letters = "a"#bcdefghijklmnopqrstuvwxyzAE"
     #letters = "a"
     sed = SED(["#"]+list(letters), 0, 1, 1)
 
@@ -213,16 +213,20 @@ def main():
     sed.theta = np.zeros(sed.atoms) 
     sed.theta = np.random.rand(sed.atoms) 
     sed.local_renormalize()
-
     #print "ONE"
     sed.local_renormalize()
-
-    x = fst.linear_chain("ab", syms=sed.sigma, semiring="log")
-    y = fst.linear_chain("ac", syms=sed.sigma, semiring="log")
+    x = fst.linear_chain("a", syms=sed.sigma, semiring="log")
+    y = fst.linear_chain("a", syms=sed.sigma, semiring="log")
     data = [(x, y)]
+    print x
+    print x.isyms
+    print x.osyms
+    print dir(x)
+    data = [ (x, y) for x, y in data ]
 
     print "LL", sed.ll(data)
     print "TWO"
+    import sys; sys.exit(0)
     sed.extract_features(data)
     
     #lv.extract_features([ y for x, y in data ])

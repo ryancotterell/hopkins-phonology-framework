@@ -58,10 +58,21 @@ for word in words:
     print word.sr
 
 
-# CHICKEN EGG PROBLEM
 
+
+sigma = fst.SymbolTable()
+sigma["#"] = 1
+letters = set([])
+for word in words:
+    for c in list(word.sr):
+        if c not in sigma:
+            sigma[c] = len(sigma)
+            letters.add(c)
+
+sed = SED(["#"]+list(letters), 0, 1, 0)
+phonology = utils.phonology_edit(sigma, .99)
 # make the model
-model = TemplaticPhonologyModel(words, utils.phonology_edit(self.sigma, .99))
+model = TemplaticPhonologyModel(words, phonology, sigma)
 
 # stochastic edit distance
 letters = []

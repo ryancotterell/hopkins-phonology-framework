@@ -18,7 +18,7 @@ from utils import peek
 
 # seed random number generator
 
-class ConcatPhonologyModel:
+class ConcatPhonologyModel(object):
     """
     Concatenative phonology model.
     Currently supports words with 2 and 3 
@@ -182,11 +182,11 @@ class ConcatPhonologyModel:
                 f.pass_message()
 
 
-class TemplaticPhonologyModel:
+class TemplaticPhonologyModel(object):
     """
     Model for templatic morphology
     """
-    def __init__(self, words, phonology):
+    def __init__(self, words, phonology, sigma):
 
         # CLASS
         vowels = set(["A", "a", "I", "i", "O", "o", "E", "e", "U", "u"])
@@ -194,6 +194,7 @@ class TemplaticPhonologyModel:
         self.class2 = []
 
         self.phonology = phonology
+        self.sigma = sigma
 
         # get number of unique morphemes
         # cache their integer ids
@@ -225,8 +226,8 @@ class TemplaticPhonologyModel:
         self.has_suffix = {}
         self.has_prefix = {}
 
-        self.sigma = fst.SymbolTable()
-        self.sigma["#"] = 1
+        # self.sigma = fst.SymbolTable()
+        # self.sigma["#"] = 1
 
         self.delta = fst.SymbolTable()
         self.delta["C"] = 1
@@ -236,8 +237,9 @@ class TemplaticPhonologyModel:
             # assumes surface alphabet is the
             # same as the underlying alphabet
             for c in list(word.sr):
+                assert c in self.sigma
                 if c not in self.sigma:
-                    self.sigma[c] = len(self.sigma)
+                    #self.sigma[c] = len(self.sigma)
                     if c in vowels and c not in self.class1:
                         self.class1.append(c)
                     if c not in vowels and c not in self.class2:

@@ -202,7 +202,7 @@ class SED(PFST):
 def main():
     letters = "abcdefgAE"
     #letters = "a"
-    sed = SED(["#"]+list(letters), 1, 2, 0)
+    sed = SED(["#"]+list(letters), 2, 1, 0)
 
     #lv = LastVowel(list(letters), list("aeAEiouy"))
 

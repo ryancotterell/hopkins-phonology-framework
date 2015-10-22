@@ -1,4 +1,4 @@
 Furab	MAIN=afternoon
-FuFurab	REDUP, MAIN=afternoon
+FuFurab	PREFIX_REDUP, MAIN=afternoon
 NaNaj	MAIN=time
-NaNaNaj	REDUP, MAIN=time
+NaNaNaj	PREFIX_REDUP, MAIN=time

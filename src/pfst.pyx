@@ -57,6 +57,7 @@ cdef class PFST(object):
 
         self.feature2origin = vector[int]()
         self.data_features = vector[vector[pair[int, vector[int]]]]()
+        self.int2feat = {}
 
         self.theta = np.zeros((1))
 
@@ -74,6 +75,7 @@ cdef class PFST(object):
                 action, value, ngram = tup
                 lst.append(counter)
                 self.feature2origin.push_back(state)
+                self.int2feat[counter] = tup
                 counter += 1
             self.features.push_back((state, lst))
             

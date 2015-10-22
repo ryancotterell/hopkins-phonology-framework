@@ -86,7 +86,6 @@ class SED(PFST):
                     self.machine.add_state()
         self.machine.start = 1
         
-
         # full context
         for llc in it.product(self.alphabet, repeat=self.llc):
             llc = "".join(llc)
@@ -121,7 +120,6 @@ class SED(PFST):
         self.ids = dd(dict)
 
         # create the machine
-        
         for ngram in self.ngram2state:
             if ngram == END:
                 continue
@@ -197,16 +195,15 @@ class SED(PFST):
 
 
 
-
-
 def main():
     letters = "abcdefgAE"
     #letters = "a"
     sed = SED(["#"]+list(letters), 2, 1, 0)
 
-    #lv = LastVowel(list(letters), list("aeAEiouy"))
+    for k, v in sed.int2feat.items():
+        print k, v
 
-    
+    import sys; sys.exit(0)
     #x = fst.linear_chain("bAbabAbap", syms=lv.sigma, semiring="log")
     print np.asarray(sed.theta)
 

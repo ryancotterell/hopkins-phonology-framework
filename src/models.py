@@ -16,6 +16,7 @@ from edges import Edge
 import utils
 from utils import peek
 
+# TODO:
 # seed random number generator
 
 class ConcatPhonologyModel(object):

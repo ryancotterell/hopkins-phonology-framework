@@ -34,17 +34,28 @@ cdef class PFST(object):
     """
     Stochastic Edit Distance
     """
-    cdef int atoms
+    cdef int atoms, num_features
     cdef vector[pair[int, vector[int]]] features
     cdef map[int, vector[int]] features_map
     cdef map[int, double] counts
 
     cdef vector[int] feature2origin
     cdef vector[vector[pair[int, vector[int]]]] data_features
+
+    # NOTE: having two different weight vectors
+    # allows one to switch between optimizing in ``feature space''
+    # and ``arc space'' fluidly 
+
+    # one ``theta'' per arc
     cdef double[:] theta
+    # one weight per feature
+    cdef double[:] weights 
+
     cdef fst.LogVectorFst machine
     cdef libfst.LogVectorFst *x
     cdef libfst.LogVectorFst *y
+
+    cdef vector[vector[int]] attributes
     
     def __init__(self, alphabet):
         super(PFST, self).__init__(alphabet)
@@ -60,6 +71,30 @@ cdef class PFST(object):
         self.int2feat = {}
 
         self.theta = np.zeros((1))
+        self.weights = no.zeros((1))
+
+        
+    def create_attributes(self, attributes):
+        " Extract the phonological attribute and associate them with the arcs "
+        
+        unique = set([])
+        self.attributes = vector[vector[int]](len(self.int2feat)+1)
+        cdef int i
+        for i in xrange(len(self.int2feat)+1):
+            self.attributes[i] = vector[int]()
+
+        for k, lst in attributes:
+            for att in lst:
+                unique.add(att)
+                self.attributes[k].push_back(att)
+
+        self.num_features = len(unique)
+        
+
+    cpdef _get_attributes(self, int i):
+        " gets the attributes for a specific arc "
+        return self.attributes[i]
+
 
     def create_features(self):
         " Extract the atomic features "
@@ -126,6 +161,7 @@ cdef class PFST(object):
         cdef fst.LogVectorFst _x = x
         cdef fst.LogVectorFst _y = y
         return self._lll(_x.fst, _y.fst)
+
         
     cdef double _lll(self, libfst.LogVectorFst *x, libfst.LogVectorFst *y):
         " examplar log-likelihood "
@@ -231,6 +267,29 @@ cdef class PFST(object):
             inc(mit)
 
         return np.asarray(g)
+
+    def feature_grad(self, data):
+        " Computes the gradient in feature space "
+        
+        cdef double[:] arc_grad = self.grad(data)
+        cdef double[:] feat_grad = np.zeros((self.num_features))
+
+        cdef int i, feat
+        cdef vector[int] features
+        cdef vector[int].iterator it
+        
+        # TODO: remove attribute / feature distinction .. it's a nightmare
+        for i in xrange(self.attributes.length()):
+            features = self.attributes[i]
+            it = features.begin()
+            while it != features.end():
+                feat = deref(it)
+                feat_grad[feat] += arc_grad[i]
+                inc(it)
+
+        return np.asarray(feat_grad)
+
+        
 
     cdef void _observed(self, int i, libfst.LogVectorFst *x, libfst.LogVectorFst *y, double[:] g):
         " computes the observed counts for a given x, y pair "
@@ -376,6 +435,28 @@ cdef class PFST(object):
             for arc in state:
                 arc.weight = fst.LogWeight(-self.theta[lst[i]]+Z)
                 i += 1
+
+
+    cdef void _feature_local_renormalize(self, double[:] weights):
+        """
+        Locally renormalize with the feaure weights
+        """
+
+        cdef double[:] theta = np.zeros((SIZE))
+        cdef int i, feat
+        cdef vector[int] features
+        cdef vector[int].iterator it
+
+        for i in xrange(self.num_features):
+            features = self.attributes[i]
+            it = features.begin()
+            while it != features.end():
+                feat = deref(it)
+                theta[i] += feat
+                inc(it)
+
+        self._local_renormalize(theta)
+
 
     cdef void _local_renormalize(self, double[:] theta):
         """

@@ -6,6 +6,7 @@ from collections import defaultdict as dd
 from scipy.optimize import fmin_l_bfgs_b as lbfgs
 from arsenal.alphabet import Alphabet
 from pfst import PFST
+from sed_features import SED_Features
 from last_vowel import LastVowel
 from utils import peek
 import cProfile
@@ -40,6 +41,27 @@ class SED(PFST):
 
         # weights
         self.theta = zeros(self.atoms)
+
+        # extract features
+        self.sed_features = SED_Features(alphabet)
+        attributes = []
+        for k, v in self.int2feat.items():
+            attributes.append((k, self.sed_features.extract(v)))
+
+        self.create_attributes(attributes)
+        
+        
+    def get_attributes(self, i):
+        """
+        Gets the attributes for a given arc
+        in human readable form
+        """
+        attributes = []
+        for att in self._get_attributes(i):
+            attributes.append(self.sed_features.features.lookup(att))
+
+        return attributes
+
         
     def _valid_rc(self, context):
         """
@@ -198,10 +220,10 @@ class SED(PFST):
 def main():
     letters = "abcdefgAE"
     #letters = "a"
-    sed = SED(["#"]+list(letters), 2, 1, 0)
-
+    alphabet = ["#"]+list(letters)
+    sed = SED(alphabet, 2, 1, 0)
     for k, v in sed.int2feat.items():
-        print k, v
+        print sed.get_attributes(k), v
 
     import sys; sys.exit(0)
     #x = fst.linear_chain("bAbabAbap", syms=lv.sigma, semiring="log")

@@ -70,20 +70,26 @@ for word in words:
             letters.add(c)
 
 sed = SED(["#"]+list(letters), 0, 1, 0)
-phonology = utils.phonology_edit(sigma, .99)
+sigma = sed.sigma
+sed.weights[0] = 3
+sed.feature_local_renormalize()
+
+phonology = sed.machine
+#phonology = utils.phonology_edit(sigma, .99)
+
 # make the model
 model = TemplaticPhonologyModel(words, phonology, sigma)
 
 # stochastic edit distance
-letters = []
-for k, v in model.sigma.items():
-    if v > 0:
-        letters.append(k)
-sed = SED(letters, 0, 1, 0, sigma=model.sigma)
+#letters = []
+#for k, v in model.sigma.items():
+#    if v > 0:
+#        letters.append(k)
+#sed = SED(letters, 0, 1, 0, sigma=model.sigma)
 
 # train the model
 # iterations of EM
-for iteration in xrange(1):
+for iteration in xrange(2):
     # E-step
     model.inference(3)
     # M-step
@@ -97,7 +103,7 @@ for iteration in xrange(1):
 
     sed.extract_features(data)
     sed.local_renormalize()
-    sed.train(data)
+    sed.feature_train(data)
     
     print sed.decode([x for x, y in data ])
 

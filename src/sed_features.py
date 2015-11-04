@@ -26,7 +26,7 @@ class SED_Features(object):
     def _copy(self, action, char, llc, ulc, urc):
         " is a copy action ? "
 
-        if action == 'sub' and len(urc) > 0 and char == urc[-1]:
+        if action == 'sub' and len(urc) > 0 and char == urc[0]:
             return [ 0 ]
         return [ ]
 
@@ -49,7 +49,7 @@ class SED_Features(object):
         features = []
         if len(urc) > 0:
             if action in ['sub', 'del']:
-                string = "EDIT(" + urc[-1] + "," + char + ")"
+                string = "EDIT(" + urc[0] + "," + char + ")"
                 self.features.add(string)
                 features.append(self.features[string])
             else:

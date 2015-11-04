@@ -219,24 +219,65 @@ class SED(PFST):
 
 
 def main():
-    letters = "ab"#bcdefgAE"
+    letters = "ab"#b"#bcdefgAE"
     #letters = "a"
     alphabet = ["#"]+list(letters)
     sed = SED(alphabet, 1, 2, 0)
     for k, v in sed.int2feat.items():
-        print sed.get_attributes(k), v
+        print k, sed.get_attributes(k), v
 
     x = fst.linear_chain("a", syms=sed.sigma, semiring="log")
     y = fst.linear_chain("ab", syms=sed.sigma, semiring="log")
     data = [(x, y)]
     sed.extract_features(data)
+    sed.weights[0] = 5
+    sed.feature_local_renormalize()
 
-    sed.weights = npr.rand((len(sed.weights)))
+    stuff = []
+    for k, v in sed.int2feat.items():
+        stuff.append(v)
+    counter = 0
+
+
+    """
+    sed.feature_train(data)
+
+    import sys; sys.exit(0)
+    #print sed.data_features
+    #print sed.get_data_features(0, 1)
+    for state in sed.machine:
+        print state
+        for arc in state:
+            print arc
+
+
+    print "COMPOSED"
+    print sed.decode([x for x, y in data ])
+    import sys; sys.exit
+    xx = data[0][0]
+    result = xx >> sed.machine
+    result.project_output()
+    result2 = fst.StdVectorFst(result).shortest_path(n=1)
+    print result2.start
+    for state in result2:
+        print state#, state.final
+        for arc in state:
+            print arc
+        
+    print "FEATURES"
+    sed.feature_on_arcs()
+    for state in sed.machine:
+        print state
+        for arc in state:
+            print arc, stuff[counter]
+    """
+    #sed.weights = npr.rand((len(sed.weights)))
     print sed.grad(data)
     print sed.grad_fd(data)
     print sed.feature_grad(data)
     print sed.feature_grad_fd(data)
-    sed.train(data)
+    sed.feature_train(data)
+    
     print sed.decode([ x for x, y in data])
     #sed.feature_grad_fd(data)
     import sys; sys.exit(0)

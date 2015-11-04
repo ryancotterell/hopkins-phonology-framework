@@ -91,6 +91,7 @@ cdef class PFST(object):
         self.num_features = len(unique)
         self.weights = zeros((self.num_features))
 
+
     cpdef _get_attributes(self, int i):
         " gets the attributes for a specific arc "
         return self.attributes[i]
@@ -193,6 +194,17 @@ cdef class PFST(object):
         " log-likelihood for locally normalized models "
 
         self.local_renormalize()        
+        ll = 0.0
+        for x, y in data:
+            # TODO: fix this!
+            ll += self.lll(x, y)
+
+        return ll
+
+    def feature_ll(self, data):
+        " log-likelihood for locally normalized models "
+
+        self.feature_local_renormalize()        
         ll = 0.0
         for x, y in data:
             # TODO: fix this!
@@ -391,6 +403,20 @@ cdef class PFST(object):
         lbfgs(f, self.theta, fprime=g, disp=2)
 
 
+    def feature_train(self, data):
+        " trains the machine using L-BFGS "
+        def f(weights):
+            self.weights = weights
+            return self.feature_ll(data)
+    
+        def g(weights):
+            self.weights = weights
+            return self.feature_grad(data)
+    
+        lbfgs(f, self.weights, fprime=g, disp=2)
+
+
+
     def decode(self, data, n=1):
         " decode the data "
 
@@ -459,6 +485,10 @@ cdef class PFST(object):
             for arc in state:
                 arc.weight = fst.LogWeight(-self.theta[lst[i]]+Z)
                 i += 1
+
+    def feature_local_renormalize(self):
+        " Locally renormalize "
+        self._feature_local_renormalize(self.weights)
 
 
     cdef void _feature_local_renormalize(self, double[:] weights):
@@ -563,3 +593,8 @@ cdef class PFST(object):
             return self.machine
         def __set__(self, machine):
             self.machine = machine
+
+
+    property data_features:
+        def __get__(self):
+            return self.data_features

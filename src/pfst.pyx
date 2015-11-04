@@ -89,7 +89,7 @@ cdef class PFST(object):
                 self.attributes[k].push_back(att)
 
         self.num_features = len(unique)
-        
+        self.weights = zeros((self.num_features))
 
     cpdef _get_attributes(self, int i):
         " gets the attributes for a specific arc "
@@ -223,11 +223,31 @@ cdef class PFST(object):
         return g
 
 
+    def feature_grad_fd(self, data, EPS=0.1):
+        " gradient for the locally normalized models with a finite-difference "
+    
+        feat_g = zeros((self.num_features))
+        for x, y in data:
+            for i in xrange(self.num_features):
+                self.weights[i] += EPS
+                self._feature_local_renormalize(self.weights)
+                ll1 = self.lll(x, y)
+                self.weights[i] -= 2 * EPS
+                self._feature_local_renormalize(self.weights)
+                ll2 = self.lll(x, y)
+                self.weights[i] += EPS
+                self._feature_local_renormalize(self.weights)
+                val = (ll1 - ll2) / (2.0 * EPS)
+                feat_g[i] += val
+
+        return feat_g
+
+
     def grad(self, data):
         " gradient for locally normalized models "
         self._local_renormalize(self.theta)
         cdef double[:] g = zeros((self.atoms))
-    
+        
         cdef fst.LogVectorFst _x
         cdef fst.LogVectorFst _y
         self.counts = map[int, double]()
@@ -268,9 +288,12 @@ cdef class PFST(object):
 
         return np.asarray(g)
 
+
     def feature_grad(self, data):
         " Computes the gradient in feature space "
         
+        self._feature_local_renormalize(self.weights)
+
         cdef double[:] arc_grad = self.grad(data)
         cdef double[:] feat_grad = np.zeros((self.num_features))
 
@@ -279,7 +302,7 @@ cdef class PFST(object):
         cdef vector[int].iterator it
         
         # TODO: remove attribute / feature distinction .. it's a nightmare
-        for i in xrange(self.attributes.length()):
+        for i in xrange(self.attributes.size()):
             features = self.attributes[i]
             it = features.begin()
             while it != features.end():
@@ -288,9 +311,9 @@ cdef class PFST(object):
                 inc(it)
 
         return np.asarray(feat_grad)
+        #return np.asarray(arc_grad)
 
         
-
     cdef void _observed(self, int i, libfst.LogVectorFst *x, libfst.LogVectorFst *y, double[:] g):
         " computes the observed counts for a given x, y pair "
     
@@ -404,6 +427,7 @@ cdef class PFST(object):
                 g.add_arc(i, arc.nextstate, arc.ilabel, arc.olabel, arc.weight)
             
         return g
+
         
     def to_zeros(self, f):
         " Zero out the arcs "
@@ -447,15 +471,16 @@ cdef class PFST(object):
         cdef vector[int] features
         cdef vector[int].iterator it
 
-        for i in xrange(self.num_features):
+        for i in xrange(self.atoms):
             features = self.attributes[i]
             it = features.begin()
             while it != features.end():
                 feat = deref(it)
-                theta[i] += feat
+                theta[i] += weights[feat]
                 inc(it)
 
-        self._local_renormalize(theta)
+        self.theta = theta
+        self._local_renormalize(self.theta)
 
 
     cdef void _local_renormalize(self, double[:] theta):
@@ -465,7 +490,9 @@ cdef class PFST(object):
         Cython Note: This function should be completely white.
         """
         cdef int state_id, i, atom, index
-        cdef vector[int] lst
+        cdef list lst
+        #cdef vector[int] lst
+
         cdef double Z, logZ, weight
 
         cdef libfst.LogVectorFst machine = self.machine.fst[0]
@@ -477,9 +504,10 @@ cdef class PFST(object):
         
         while vit != self.features.end():
             p = deref(vit)
+
             state_id = p.first
             lst = p.second
-        
+
             Z = 0.0
             for atom in lst:
                 if atom != -1:
@@ -487,6 +515,7 @@ cdef class PFST(object):
             logZ = log(Z)
 
             i = 0
+
             it = new libfst.ArcIterator[libfst.LogVectorFst](machine, state_id)
             while not it.Done():
                 index = lst[i]
@@ -496,8 +525,9 @@ cdef class PFST(object):
                 i += 1
                 it.Next()
             del it
-            inc(vit)
 
+            inc(vit)
+            
 
     def train(self, data):
         " trains the machine using L-BFGS "
@@ -521,6 +551,12 @@ cdef class PFST(object):
             return self.theta
         def __set__(self, theta):
             self.theta = theta
+
+    property weights:
+        def __get__(self):
+            return self.weights
+        def __set__(self, weights):
+            self.weights = weights
 
     property machine:
         def __get__(self):

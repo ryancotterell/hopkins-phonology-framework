@@ -1,6 +1,7 @@
 import fst
 import itertools as it
 import numpy as np
+import numpy.random as npr
 from numpy import zeros, ones, exp, log
 from collections import defaultdict as dd
 from scipy.optimize import fmin_l_bfgs_b as lbfgs
@@ -218,13 +219,26 @@ class SED(PFST):
 
 
 def main():
-    letters = "abcdefgAE"
+    letters = "ab"#bcdefgAE"
     #letters = "a"
     alphabet = ["#"]+list(letters)
-    sed = SED(alphabet, 2, 1, 0)
+    sed = SED(alphabet, 1, 2, 0)
     for k, v in sed.int2feat.items():
         print sed.get_attributes(k), v
 
+    x = fst.linear_chain("a", syms=sed.sigma, semiring="log")
+    y = fst.linear_chain("ab", syms=sed.sigma, semiring="log")
+    data = [(x, y)]
+    sed.extract_features(data)
+
+    sed.weights = npr.rand((len(sed.weights)))
+    print sed.grad(data)
+    print sed.grad_fd(data)
+    print sed.feature_grad(data)
+    print sed.feature_grad_fd(data)
+    sed.train(data)
+    print sed.decode([ x for x, y in data])
+    #sed.feature_grad_fd(data)
     import sys; sys.exit(0)
     #x = fst.linear_chain("bAbabAbap", syms=lv.sigma, semiring="log")
     print np.asarray(sed.theta)

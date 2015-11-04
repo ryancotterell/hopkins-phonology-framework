@@ -71,7 +71,7 @@ cdef class PFST(object):
         self.int2feat = {}
 
         self.theta = np.zeros((1))
-        self.weights = no.zeros((1))
+        self.weights = np.zeros((1))
 
         
     def create_attributes(self, attributes):
@@ -442,7 +442,7 @@ cdef class PFST(object):
         Locally renormalize with the feaure weights
         """
 
-        cdef double[:] theta = np.zeros((SIZE))
+        cdef double[:] theta = np.zeros((self.atoms))
         cdef int i, feat
         cdef vector[int] features
         cdef vector[int].iterator it

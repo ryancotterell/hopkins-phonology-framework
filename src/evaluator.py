@@ -45,13 +45,27 @@ class TemplaticEvaluator(Evaluator):
 
     def cross_entropy(self, truth, prediction):
         " Computes cross entropy "
-        pass
         
+        machine = fst.linear_chain(truth, semiring="log", syms=prediction.isyms)
+        result = machine >> prediction
+        return float(result.shortest_distance(True)[result.start])
+
 
     def accuracy(self, truth, prediction):
         " Computes accuracy "
-        pass
+        
+        prediction = fst.StdVectorFst(prediction)
+        machine = prediction.shortest_path(n=1)
+        machine.project_output()
 
+        string = ""
+        for path in machine.paths():
+            for arc in path:
+                if arc.ilabel > 0:
+                    string += arc.isyms.find(arc.ilabel)
+        
+        return 1.0 if string == truth else 0.0
+        
 
     def expected_edit_distance(def, truth, prediction):
         " Computes the expected edit distance "

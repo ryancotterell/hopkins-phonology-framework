@@ -105,6 +105,8 @@ class Variable_Pruned(Variable):
                 continue
             edge.m_f = belief
 
+        self.belief = belief
+
     def __str__(self):
         return "VAR: " + self._id
         
@@ -227,7 +229,8 @@ class Variable_EP(Variable):
             if edge == None:
                 continue
             edge.m_f = belief
-
+        # set belief
+        self.belief = belief
 
     def __str__(self):
         return "VAR: " + self._id

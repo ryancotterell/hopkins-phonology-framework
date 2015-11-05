@@ -462,6 +462,58 @@ class TemplaticPhonologyModel(object):
 
         return data
 
+    def predict(self, root, pattern, prefix, suffix):
+        " Captures it in a try block "
+        try:
+            return self._predict(root, pattern, prefix, suffix)
+        except KeyError:
+            return None
+
+    def _predict(self, root, pattern, prefix, suffix):
+        """ 
+        Return the prediction based on a combination
+        of a root, pattern, prefix and suffix and
+        then run it through the phonology.
+        """
+        pattern_id = self.pattern2id[pattern]
+        root_id = self.root2id[root]
+
+        # HACK: to get out interdigitator
+        interdigitator1 = self.binyan_factors[0].interdigitator1
+        interdigitator2 = self.binyan_factors[0].interdigitator2
+        replacer_class1 = self.binyan_factors[0].replacer_class1
+        replacer_class2 = self.binyan_factors[0].replacer_class2
+        
+        pattern_var = self.pattern_variables[pattern_id].belief
+        root_var = self.root_variables[root_id].belief
+        alignment_var = self.alignment_variables[pattern_id].belief
+
+        prediction = root_var >> replacer_class1 \
+              >> interdigitator1 >> alignment_var \
+              >> interdigitator2 >> replacer_class2 >> pattern_var
+
+        # switch the labels
+        for state in prediction:
+            for arc in state:
+                if arc.ilabel > 0 and arc.olabel == 0:
+                    arc.olabel = arc.ilabel
+                elif arc.olabel > 0 and arc.ilabel == 0:
+                    arc.ilabel = arc.olabel
+
+        prediction.project_output()
+
+        if prefix is not None:
+            prefix_var = self.level3_variables[self.morphemes_to_id[prefix]]
+            prediction = prefix_var.belief + prediction
+        if suffix is not None:
+            suffix_var = self.level3_variables[self.morphemes_to_id[suffix]]
+            prediction = prediction + suffix_var.belief
+
+        prediction = prediction >> self.phonology
+        prediction.project_output()
+        return prediction
+
+
     def inference(self, iterations=2):
         " Perform Inference by EP "
         # only done once

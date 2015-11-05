@@ -73,9 +73,13 @@ for word in words:
     print word.sr
 
 random.shuffle(words)
-train = words[:20]
-test = words[20:]
+train = words[:15]
+test = words[15:]
 words = train
+
+for word in test:
+    print word.pattern_id, word.root_id, word.suffix_ids, word.prefix_ids
+import sys; sys.exit(0)
 
 sigma = fst.SymbolTable()
 sigma["#"] = 1
@@ -99,7 +103,8 @@ sed.feature_local_renormalize()
 
 # train the model
 # iterations of EM
-for iteration in xrange(3):
+model = None
+for iteration in xrange(2):
     # E-step
     # TODO:
     # shoudln't have to rebuild the factor graph... 
@@ -107,8 +112,10 @@ for iteration in xrange(3):
     
     phonology = sed.machine
     model = TemplaticPhonologyModel(words, phonology, sigma)
-    model.inference(5)
+    #print model.morphemes_to_id
+    #import sys; sys.exit(0)
 
+    model.inference(1)
     # M-step
     data = model.training_data(n=5)
     for ur, sr in data:
@@ -127,6 +134,12 @@ for iteration in xrange(3):
         peek(sr, 10)
     
     print sed.decode([x for x, y in data ])
+    
+print "PREDICTION"
+prediction = model.predict("ktb", "PST1", None, "SG2F")
+print prediction
+peek(prediction, 10)
+import sys; sys.exit(0)
 
 #cProfile.runctx("model.inference(2)", globals(), locals(), "Profile.prof")
 #s = pstats.Stats("Profile.prof")

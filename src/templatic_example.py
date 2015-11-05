@@ -1,6 +1,7 @@
 import codecs
 import sys
 import fst
+import random
 import numpy as np
 import utils
 from utils import peek
@@ -18,6 +19,7 @@ def read(file_in):
     data = []
     with codecs.open(file_in, 'rb', encoding="utf8") as f:
         for line in f:
+
             line = line.strip()
             sr, morphemes = line.split("\t")
             av = morphemes.split(",")
@@ -36,29 +38,44 @@ def read(file_in):
                 elif a == "SUFFIX":
                     suffixes.append(v)
 
+            
             if "past 1 singular" in suffixes or \
-               "past 2 masculine singular" in suffixes or \
-               "past 3 masculine singular" in suffixes or \
-               "past 3 feminine singular" in suffixes:
+               "past 2 masculine singular" in suffixes:# or \
+               #"past 3 masculine singular" in suffixes:# or \
+               #"past 3 feminine singular" in suffixes:
           
                 tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
                 data.append(tw)
+                
+            if pattern in ["PST1", "PST1"] and root in ["sm'", "fhm", "ktb", "lms", "ftH"]:
+                tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
+                data.append(tw)
+                  
+                
+
+            # for suffix in suffixes:
+            #     if "past" in suffix:
+            #         tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
+            #         data.append(tw)
+            #         break
 
 
-            # if len(suffixes) >= 0 and len(prefixes) == 0:
-            #     tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
-            #     data.append(tw)
+            #if len(suffixes) >= 0 and len(prefixes) == 0:
+            #    tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
+            #    data.append(tw)
 
     return data
 
 
 
-words = read(sys.argv[1])[:8]
+words = read(sys.argv[1])[:]
 for word in words:
     print word.sr
 
-
-
+random.shuffle(words)
+train = words[:20]
+test = words[20:]
+words = train
 
 sigma = fst.SymbolTable()
 sigma["#"] = 1
@@ -69,32 +86,31 @@ for word in words:
             sigma[c] = len(sigma)
             letters.add(c)
 
-sed = SED(["#"]+list(letters), 0, 1, 0)
-sigma = sed.sigma
-sed.weights[0] = 3
+print "...creating stochastic edit machine"
+sed = SED(["#"]+list(letters), 2, 1, 0, sigma=sigma)
+print "...done"
+
+sed.weights[0] = 5
 sed.feature_local_renormalize()
 
-phonology = sed.machine
 #phonology = utils.phonology_edit(sigma, .99)
 
 # make the model
-model = TemplaticPhonologyModel(words, phonology, sigma)
-
-# stochastic edit distance
-#letters = []
-#for k, v in model.sigma.items():
-#    if v > 0:
-#        letters.append(k)
-#sed = SED(letters, 0, 1, 0, sigma=model.sigma)
 
 # train the model
 # iterations of EM
-for iteration in xrange(2):
+for iteration in xrange(3):
     # E-step
-    model.inference(3)
-    # M-step
-    data = model.training_data(n=1)
+    # TODO:
+    # shoudln't have to rebuild the factor graph... 
+    # some sort of state bug
+    
+    phonology = sed.machine
+    model = TemplaticPhonologyModel(words, phonology, sigma)
+    model.inference(5)
 
+    # M-step
+    data = model.training_data(n=5)
     for ur, sr in data:
         print "UR"
         peek(ur, 10)
@@ -103,7 +119,12 @@ for iteration in xrange(2):
 
     sed.extract_features(data)
     sed.local_renormalize()
-    sed.feature_train(data)
+    sed.feature_train(data, maxiter=100)
+    for ur, sr in data:
+        print "UR"
+        peek(ur, 10)
+        print "SR"
+        peek(sr, 10)
     
     print sed.decode([x for x, y in data ])
 

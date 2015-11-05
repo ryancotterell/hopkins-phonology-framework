@@ -40,6 +40,12 @@ class SED_Features(object):
             string = "BIGRAM(" + prefix + char + ")"
             features.append(self.features[string])
 
+        for i in xrange(len(llc)):
+            prefix = llc[i]
+            string = "SINGLE(" + prefix + char + ")"
+            features.append(self.features[string])
+
+
         return features
 
 

@@ -239,12 +239,11 @@ class TemplaticPhonologyModel(object):
             # same as the underlying alphabet
             for c in list(word.sr):
                 assert c in self.sigma
-                if c not in self.sigma:
-                    #self.sigma[c] = len(self.sigma)
-                    if c in vowels and c not in self.class1:
-                        self.class1.append(c)
-                    if c not in vowels and c not in self.class2:
-                        self.class2.append(c)
+                #self.sigma[c] = len(self.sigma)
+                if c in vowels and c not in self.class1:
+                    self.class1.append(c)
+                if c not in vowels and c not in self.class2:
+                    self.class2.append(c)
 
             # intern sr
             cur_len =  len(self.sr_to_id)

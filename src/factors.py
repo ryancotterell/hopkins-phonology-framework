@@ -20,7 +20,7 @@ class ExponentialUnaryFactor(Factor):
         self.unary.start = self.unary.add_state()
         self.unary[0].final = fst.LogWeight.ONE
         for k, v in self.sigma.items():
-            self.unary.add_arc(0, 0, v, v, 3.0)        
+            self.unary.add_arc(0, 0, v, v, 5.0)        
 
 
     def pass_down(self):

@@ -390,7 +390,7 @@ cdef class PFST(object):
         del composed
 
 
-    def train(self, data):
+    def train(self, data, maxiter=1):
         " trains the machine using L-BFGS "
         def f(theta):
             self.theta = theta
@@ -400,10 +400,10 @@ cdef class PFST(object):
             self.theta = theta
             return self.grad(data)
     
-        lbfgs(f, self.theta, fprime=g, disp=2)
+        lbfgs(f, self.theta, fprime=g, maxiter=maxiter, disp=2)
 
 
-    def feature_train(self, data):
+    def feature_train(self, data, maxiter=1):
         " trains the machine using L-BFGS "
         def f(weights):
             self.weights = weights
@@ -413,7 +413,7 @@ cdef class PFST(object):
             self.weights = weights
             return self.feature_grad(data)
     
-        lbfgs(f, self.weights, fprime=g, disp=2)
+        lbfgs(f, self.weights, fprime=g, maxiter=maxiter, disp=2)
 
 
 

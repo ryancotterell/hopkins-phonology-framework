@@ -23,10 +23,11 @@ class Variable(object):
     def compute_belief(self):
         " Computes the belief "
         
-        self.belief = self.edges[0].m_v
+        self.belief = self.edges[1].m_v
+        """
         for edge in self.edges[1:]:
             self.belief = self.belief >> edge.m_v
-
+        """
 
     def __str__(self):
         return "VAR: " + self._id
@@ -168,8 +169,8 @@ class Variable_EP(Variable):
                     contexts.add(c1+c2)
                 # if len(self.edges) < 5:
                 #     # trigrams
-                #     for (c1, c2), c3 in zip(zip(list("^^" + string), list("^" + string)), list(string)):
-                #         contexts.add(c1+c2+c3)
+                for (c1, c2), c3 in zip(zip(list("^^" + string), list("^" + string)), list(string)):
+                    contexts.add(c1+c2+c3)
                         
         contexts = list(contexts)
 
@@ -186,8 +187,8 @@ class Variable_EP(Variable):
                 #if len(self.edges) == 3:
                     
                     #print contexts
-                # print str(i) + "\tEDGE M_V", edge.v
-                # peek(edge.m_v, 10)
+                #print str(i) + "\tEDGE M_V", edge.v
+                #peek(edge.m_v, 10)
                 tmp = edge.m_v >> belief  #fst.LogVectorFst(fst.StdVectorFst(edge.m_v).shortest_path(n=10))
                 approx = None
                 #if len(self.edges) > 3:

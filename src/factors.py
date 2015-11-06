@@ -11,7 +11,6 @@ class ExponentialUnaryFactor(Factor):
     """
     def __init__(self, sigma):
         self.edges = [None]
-
         # underlying FSA
         self.sigma = sigma
         self.unary = fst.LogVectorFst(self.sigma, self.sigma)
@@ -36,7 +35,7 @@ class PhonologyFactor(Factor):
     Phonology Factor
     """
 
-    def __init__(self, sigma, phonology):
+    def __init__(self, sigma, phonology, stressed = set(["A", "I", "E", "O", "U"])):
         self.edges = [None, None]
         self.phonology = phonology
         # Underlying FST
@@ -44,11 +43,22 @@ class PhonologyFactor(Factor):
         # sets the surface form and underyling form
         self.sr, self.ur = None, None
 
+        self.nostress = fst.LogVectorFst(self.sigma, self.sigma)
+        self.nostress.isyms = self.sigma
+        self.nostress.osyms = self.sigma
+        self.nostress.start = self.nostress.add_state()
+        self.nostress[0].final = fst.LogWeight.ONE
+        for k, v in self.sigma.items():
+            if v > 0 and k not in stressed:
+                self.nostress.add_arc(0, 0, v, v, 0.0)        
+
+
 
     def pass_up(self):
         self.sr = fst.linear_chain(self.edges[0].v.sr, syms=self.sigma, semiring="log")
-        self.ur = self.sr >> self.phonology.inverse()
+        self.ur = self.sr >> self.phonology.inverse() 
         self.ur.project_output()
+        self.ur = self.ur >> self.nostress
         self.edges[1].m_v = self.ur
 
 

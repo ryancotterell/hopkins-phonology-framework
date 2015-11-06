@@ -4,6 +4,11 @@ Evaluates the model based on three evaluation metrics:
 2) Accuracy
 3) Expected Edit Distance
 """
+import fst
+import numpy as np
+import numpy.random as npr
+from numpy import exp
+from Levenshtein import distance
 
 class Evaluator(object):
     """ STUB """
@@ -19,6 +24,14 @@ class TemplaticEvaluator(Evaluator):
         self.test = test
 
 
+    def evaluate(self, dev=True):
+        " Run the evaluation metrics "
+        if dev:
+            return self.aggregate(self.dev)
+        else:
+            return self.aggregate(self.test)
+
+
     def aggregate(self, words):
         " Aggregate over data "
         N = 0
@@ -28,7 +41,6 @@ class TemplaticEvaluator(Evaluator):
             root = word.root_id
             suffixes = word.suffix_ids
             prefixes = word.prefix_ids
-
             # TODO: doesn't support multiple prefixes and suffixes
             suffix = suffixes[0] if len(suffixes) == 1 else None
             prefix = prefixes[0] if len(prefixes) == 1 else None
@@ -40,8 +52,10 @@ class TemplaticEvaluator(Evaluator):
                 # metrics
                 xent += self.cross_entropy(word.sr, prediction)
                 acc += self.accuracy(word.sr, prediction)
-            
+                exp_edit += self.expected_edit_distance(word.sr, prediction)
                 N += 1
+
+        return xent / N, acc / N, exp_edit / N
 
     def cross_entropy(self, truth, prediction):
         " Computes cross entropy "
@@ -62,11 +76,42 @@ class TemplaticEvaluator(Evaluator):
         for path in machine.paths():
             for arc in path:
                 if arc.ilabel > 0:
-                    string += arc.isyms.find(arc.ilabel)
-        
-        return 1.0 if string == truth else 0.0
+                    string += machine.isyms.find(arc.ilabel)
+
+        print string, truth
+        return 0.0 if string == truth else 1.0
         
 
-    def expected_edit_distance(def, truth, prediction):
+    def expected_edit_distance(self, truth, prediction, n=20):
         " Computes the expected edit distance "
-        pass
+        prediction.project_output()
+        prediction.remove_epsilon()
+        prediction = prediction.push_weights()
+        
+        # sample paths
+        def sample():        
+            string = ""
+            cur = prediction[prediction.start]
+            while True:
+                p = []
+                p.append(exp(-float(cur.final)))
+                for arc in cur:
+                    p.append(exp(-float(arc.weight)))
+                p = np.array(p)
+                p /= p.sum()
+
+                sampled = npr.choice(range(len(p)), p=p)
+                if sampled == 0:
+                    break
+                else:
+                    for counter, arc in enumerate(cur):
+                        if counter+1 == sampled:
+                            string += prediction.isyms.find(arc.ilabel)
+                            cur = prediction[arc.nextstate]
+
+            return string
+
+        edit_distance = 0.0
+        for i in xrange(n):
+            edit_distance += distance(unicode(truth), unicode(sample()))
+        return edit_distance / n

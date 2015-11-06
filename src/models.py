@@ -462,12 +462,14 @@ class TemplaticPhonologyModel(object):
 
         return data
 
+
     def predict(self, root, pattern, prefix, suffix):
         " Captures it in a try block "
         try:
             return self._predict(root, pattern, prefix, suffix)
         except KeyError:
             return None
+
 
     def _predict(self, root, pattern, prefix, suffix):
         """ 

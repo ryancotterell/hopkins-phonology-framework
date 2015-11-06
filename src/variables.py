@@ -133,11 +133,13 @@ class Variable_EP(Variable):
         """
         self.edges.append(edge)
 
+
     def compute_messages(self, marginal=False, verbose=False, prune_n=100, tolerance=5.0):
         """
         Compute messages
         """
         pass
+
 
     def pass_message(self):
         """
@@ -184,8 +186,7 @@ class Variable_EP(Variable):
             for edge in self.edges[:]:
                 if edge == None:
                     continue
-               
-                #print "EDGE", edge, edge.m_v
+                
                 #if len(self.edges) == 3:
                     
                     #print contexts
@@ -220,7 +221,7 @@ class Variable_EP(Variable):
                 #edge.m_f = belief
 
         #belief = belief >> self.edges[0].m_v
-
+    
         print belief
         print "BELIEF 1"
         peek(belief, 10)

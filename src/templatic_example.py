@@ -11,6 +11,7 @@ from words import TemplaticWord
 from models import ConcatPhonologyModel
 from models import TemplaticPhonologyModel
 from sed import SED
+from evaluator import TemplaticEvaluator
 
 import pstats, cProfile
 
@@ -47,7 +48,7 @@ def read(file_in):
                 tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
                 data.append(tw)
                 
-            if pattern in ["PST1", "PST1"] and root in ["sm'", "fhm", "ktb", "lms", "ftH"]:
+            if pattern in ["PST1", "PST2"] and root in ["sm'", "fhm", "ktb", "lms", "ftH"]:
                 tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
                 data.append(tw)
                   
@@ -73,13 +74,16 @@ for word in words:
     print word.sr
 
 random.shuffle(words)
-train = words[:15]
-test = words[15:]
+train = words[:25]
+test = words[25:]
 words = train
-
-for word in test:
-    print word.pattern_id, word.root_id, word.suffix_ids, word.prefix_ids
-import sys; sys.exit(0)
+print "TRAIN"
+print train
+print "TEST"
+print test
+#for word in test:
+#    print word.pattern_id, word.root_id, word.suffix_ids, word.prefix_ids
+#import sys; sys.exit(0)
 
 sigma = fst.SymbolTable()
 sigma["#"] = 1
@@ -115,18 +119,19 @@ for iteration in xrange(2):
     #print model.morphemes_to_id
     #import sys; sys.exit(0)
 
-    model.inference(1)
+    model.inference(5)
     # M-step
-    data = model.training_data(n=5)
+    data = model.training_data(n=1)
     for ur, sr in data:
         print "UR"
         peek(ur, 10)
         print "SR"
         peek(sr, 10)
 
+
     sed.extract_features(data)
     sed.local_renormalize()
-    sed.feature_train(data, maxiter=100)
+    sed.feature_train(data, maxiter=20)
     for ur, sr in data:
         print "UR"
         peek(ur, 10)
@@ -134,7 +139,10 @@ for iteration in xrange(2):
         peek(sr, 10)
     
     print sed.decode([x for x, y in data ])
-    
+
+
+evaluator = TemplaticEvaluator(model, test, test)
+print evaluator.evaluate(False)    
 print "PREDICTION"
 prediction = model.predict("ktb", "PST1", None, "SG2F")
 print prediction

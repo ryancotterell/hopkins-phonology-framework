@@ -57,6 +57,7 @@ class TemplaticEvaluator(Evaluator):
 
         return xent / N, acc / N, exp_edit / N
 
+
     def cross_entropy(self, truth, prediction):
         " Computes cross entropy "
         
@@ -82,10 +83,9 @@ class TemplaticEvaluator(Evaluator):
         return 0.0 if string == truth else 1.0
         
 
-    def expected_edit_distance(self, truth, prediction, n=20):
+    def expected_edit_distance(self, truth, prediction, n=50):
         " Computes the expected edit distance "
         prediction.project_output()
-        prediction.remove_epsilon()
         prediction = prediction.push_weights()
         
         # sample paths
@@ -106,12 +106,18 @@ class TemplaticEvaluator(Evaluator):
                 else:
                     for counter, arc in enumerate(cur):
                         if counter+1 == sampled:
-                            string += prediction.isyms.find(arc.ilabel)
+                            if arc.ilabel > 0:
+                                string += prediction.isyms.find(arc.ilabel)
                             cur = prediction[arc.nextstate]
+
+                # HACK: ensure finite termination
+                if len(string) > 20:
+                    return string
 
             return string
 
         edit_distance = 0.0
         for i in xrange(n):
-            edit_distance += distance(unicode(truth), unicode(sample()))
+            sampled = unicode(sample())
+            edit_distance += distance(unicode(truth), sampled)
         return edit_distance / n

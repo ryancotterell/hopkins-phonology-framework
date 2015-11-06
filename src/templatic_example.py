@@ -39,27 +39,30 @@ def read(file_in):
                 elif a == "SUFFIX":
                     suffixes.append(v)
 
-            
-            if "past 1 singular" in suffixes or \
-               "past 2 masculine singular" in suffixes:# or \
-               #"past 3 masculine singular" in suffixes:# or \
-               #"past 3 feminine singular" in suffixes:
-          
-                tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
-                data.append(tw)
+
+            # if "past 1 singular" in suffixes or \
+            #    "past 2 masculine singular" in suffixes  or \
+            #    "past 3 masculine singular" in suffixes:#  or \
+            #    #"past 3 feminine singular" in suffixes or \
+            #    #"past 2 feminine singular" in suffixes or \
+            #    #"past 1 plural" in suffixes:
                 
-            if pattern in ["PST1", "PST2"] and root in ["sm'", "fhm", "ktb", "lms", "ftH"]:
-                tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
-                data.append(tw)
+            #     tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
+            #     data.append(tw)
+
+
+            #if pattern in ["PST1", "PST2"] and root in ["sm'", "fhm", "ktb", "lms", "ftH"]:
+            #    tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
+            #    data.append(tw)
                   
-                
-
-            # for suffix in suffixes:
-            #     if "past" in suffix:
-            #         tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
-            #         data.append(tw)
-            #         break
-
+            
+            
+            for suffix in suffixes:
+               if "past" in suffix:
+                   tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
+                   data.append(tw)
+                   break
+            
 
             #if len(suffixes) >= 0 and len(prefixes) == 0:
             #    tw = TemplaticWord(sr, root, pattern, prefixes, suffixes)
@@ -69,13 +72,13 @@ def read(file_in):
 
 
 
-words = read(sys.argv[1])[:]
+words = read(sys.argv[1])[:80]
 for word in words:
     print word.sr
 
-random.shuffle(words)
-train = words[:25]
-test = words[25:]
+#random.shuffle(words)
+train = words[:80]
+test = words[80:]
 words = train
 print "TRAIN"
 print train
@@ -95,13 +98,13 @@ for word in words:
             letters.add(c)
 
 print "...creating stochastic edit machine"
-sed = SED(["#"]+list(letters), 2, 1, 0, sigma=sigma)
+sed = SED(["#"]+list(letters), 0, 3, 0, sigma=sigma)
 print "...done"
 
-sed.weights[0] = 5
+sed.weights[0] = 20
 sed.feature_local_renormalize()
 
-#phonology = utils.phonology_edit(sigma, .99)
+first_phonology = utils.phonology_edit(sigma, .99)
 
 # make the model
 
@@ -115,7 +118,10 @@ for iteration in xrange(2):
     # some sort of state bug
     
     phonology = sed.machine
-    model = TemplaticPhonologyModel(words, phonology, sigma)
+    if iteration == 0:
+        model = TemplaticPhonologyModel(words, first_phonology, sigma)
+    else:
+        model = TemplaticPhonologyModel(words, phonology, sigma, phono_approx=True)
     #print model.morphemes_to_id
     #import sys; sys.exit(0)
 
@@ -128,10 +134,9 @@ for iteration in xrange(2):
         print "SR"
         peek(sr, 10)
 
-
     sed.extract_features(data)
     sed.local_renormalize()
-    sed.feature_train(data, maxiter=20)
+    sed.feature_train(data, maxiter=50)
     for ur, sr in data:
         print "UR"
         peek(ur, 10)

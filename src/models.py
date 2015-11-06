@@ -187,7 +187,7 @@ class TemplaticPhonologyModel(object):
     """
     Model for templatic morphology
     """
-    def __init__(self, words, phonology, sigma):
+    def __init__(self, words, phonology, sigma, phono_approx=False):
 
         # CLASS
         vowels = set(["A", "a", "I", "i", "O", "o", "E", "e", "U", "u"])
@@ -196,6 +196,8 @@ class TemplaticPhonologyModel(object):
 
         self.phonology = phonology
         self.sigma = sigma
+
+        self.phono_approx = phono_approx
 
         # get number of unique morphemes
         # cache their integer ids
@@ -520,7 +522,7 @@ class TemplaticPhonologyModel(object):
         " Perform Inference by EP "
         # only done once
         for f in self.phono_factors:
-            f.pass_up()
+            f.pass_up(self.phono_approx)
 
         for f in self.unary_factors:
             f.pass_down()

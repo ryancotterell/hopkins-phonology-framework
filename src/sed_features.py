@@ -58,8 +58,17 @@ class SED_Features(object):
                 string = "EDIT(" + urc[0] + "," + char + ")"
                 self.features.add(string)
                 features.append(self.features[string])
+
+                string = "EDIT(" + urc[0] + "," + char + ") | " + urc[-1]
+                self.features.add(string)
+                features.append(self.features[string])
+
             else:
                 string = "EDIT(," + char + ")"
+                self.features.add(string)
+                features.append(self.features[string])
+
+                string = "EDIT(," + char + ") | " + urc[-1]
                 self.features.add(string)
                 features.append(self.features[string])
 
